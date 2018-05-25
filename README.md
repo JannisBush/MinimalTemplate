@@ -1,3 +1,20 @@
+[Demo](https://jannisbush.github.io/Object-biases-in-visual-attention/)  
+
+# Object-biases in visual attention
+
+Humans are faster at detecting a visual stimulus when it occurs on an object they were paying attention to. This is a classic study with plenty of opportunity to learn about proper stimulus timing and reaction time recording. 
+
+| &nbsp;     | |
+| :--- | :--- |
+| Authors | Robert Egly, Jon Driver & Robert D. Rafal |
+| Title | [Shifting Visual Attention Between Objects and Locations: Evidence From Normal and Parietal Lesion Subjects](http://www.psych.utoronto.ca/users/ferber/teaching/visualattention/readings/Oct13/1994_Egly_etal_JEPG.pdf) |
+| Keywords | visual attention, reaction times |
+| Challenge | create stimuli, timing of presentation, record reaction times|
+| Difficulty | difficult |
+| Group | 2-4 |
+
+---
+:arrow_down_small: Description of Minimal Template:
 # Minimal example of an online experiment
 
 ## Cloning and running the experiment
