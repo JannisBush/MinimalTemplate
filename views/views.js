@@ -63,6 +63,9 @@ var trialKeyPress = {
         $('#main').html(Mustache.render(view.template, {
 
         }));
+
+        draw_fixation();
+
         startingTime = Date.now();
         // updates the progress bar
         $('#filled').css('width', filled);
@@ -133,6 +136,9 @@ var mainKeyPress = {
         $('#main').html(Mustache.render(view.template, {
 
         }));
+        
+        draw_fixation();
+
         startingTime = Date.now();
         // updates the progress bar
         $('#filled').css('width', filled);
