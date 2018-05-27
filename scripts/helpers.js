@@ -20,6 +20,9 @@ var draw_blank = function(color="#FFFFFF") {
 var draw_fixation = function(rotate=false) {
   // start
   var canvas = document.getElementById('canvas');
+  if (rotate){
+    canvas = createCanvas(canvas.width, canvas.height);
+  }
   if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
     var cw = canvas.width;
@@ -40,7 +43,7 @@ var draw_fixation = function(rotate=false) {
     ctx.stroke();
 
     if (rotate) {
-      rotate_canvas();
+      rotate_canvas(canvas);
     }
   }
 };
@@ -48,6 +51,9 @@ var draw_fixation = function(rotate=false) {
 var draw_cue = function(rotate=false) {
   // start
   var canvas = document.getElementById('canvas');
+  if (rotate){
+    canvas = createCanvas(canvas.width, canvas.height);
+  }
   if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
     var cw = canvas.width;
@@ -73,7 +79,7 @@ var draw_cue = function(rotate=false) {
     ctx.stroke();
 
     if (rotate) {
-      rotate_canvas();
+      rotate_canvas(canvas);
     }
     return [org_x, org_y];
   }
@@ -82,6 +88,9 @@ var draw_cue = function(rotate=false) {
 var draw_target = function(org_x, org_y, rotate=false) {
   // start
   var canvas = document.getElementById('canvas');
+  if (rotate){
+    canvas = createCanvas(canvas.width, canvas.height);
+  }
   if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
     var cw = canvas.width;
@@ -106,13 +115,13 @@ var draw_target = function(org_x, org_y, rotate=false) {
     ctx.stroke();
 
     if (rotate) {
-      rotate_canvas();
+      rotate_canvas(canvas);
     }
     return react;
   }
 };
 
-var rotate_canvas = function() {
+var rotate_canvas = function(hidden_canvas) {
   // store current data to an image
   var myImage = new Image();
   var canvas = document.getElementById('canvas');
@@ -120,7 +129,7 @@ var rotate_canvas = function() {
     var ch = canvas.height;
     var cw = canvas.width;
     var context = canvas.getContext('2d');
-    myImage.src = canvas.toDataURL();
+    myImage.src = hidden_canvas.toDataURL();
 
     myImage.onload = function () {
         // reset the canvas with new dimensions
@@ -141,4 +150,11 @@ var rotate_canvas = function() {
         myImage = null;
     }
   }
+};
+
+var createCanvas = function(width, height) {
+ var c = document.createElement('canvas');
+ c.setAttribute('width', width);
+ c.setAttribute('height', height);
+ return c;
 };
