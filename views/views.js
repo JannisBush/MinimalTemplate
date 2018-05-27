@@ -8,7 +8,7 @@ var intro = {
     "buttonText": "Begin experiment",
     // render function renders the view
     render: function() {
-        
+
         viewTemplate = $('#intro-view').html();
         $('#main').html(Mustache.render(viewTemplate, {
             title: this.title,
@@ -46,47 +46,61 @@ var instructions = {
         // moves to the next view
         $('#next').on('click', function(e) {
             exp.findNextView();
-        }); 
+        });
 
     },
     trials: 1
 };
 
-var practice = {
-    name: 'practice',
-    "title": "Practice trial",
-    // render function renders the view
-    render: function (CT) {
+var trialKeyPress = {
+    render : function(CT) {
+        var view = {};
+        // what part of the progress bar is filled
+        var filled = CT * (180 / exp.views_seq[exp.currentViewCounter].trials);
+        view.name = 'trial',
+        view.template = $('#practice-view').html();
 
-        viewTemplate = $("#practice-view").html();
-        $('#main').html(Mustache.render(viewTemplate, {
-        title: this.title,
-        question: exp.trial_info.practice_trials[CT].question,
-        option1: exp.trial_info.practice_trials[CT].option1,
-        option2: exp.trial_info.practice_trials[CT].option2,
-        picture: exp.trial_info.practice_trials[CT].picture
+        $('#main').html(Mustache.render(view.template, {
+
         }));
         startingTime = Date.now();
-        // attaches an event listener to the yes / no radio inputs
-        // when an input is selected a response property with a value equal to the answer is added to the trial object
-        // as well as a readingTimes property with value - a list containing the reading times of each word
-        $('input[name=answer]').on('change', function() {
-            RT = Date.now() - startingTime; // measure RT before anything else
-            trial_data = {
-                trial_type: "practice",
-                trial_number: CT+1,
-                question: exp.trial_info.practice_trials[CT].question,
-                option1: exp.trial_info.practice_trials[CT].option1,
-                option2: exp.trial_info.practice_trials[CT].option2,
-                option_chosen: $('input[name=answer]:checked').val(),
-                RT: RT
-            };
-            exp.trial_data.push(trial_data)
-            exp.findNextView();
-        });
+        // updates the progress bar
+        $('#filled').css('width', filled);
 
+        var handleKeyPress = function(e) {
+            keyPressed = e.which
+            if (keyPressed === 32) {
+                var corectness;
+                console.log(keyPressed);
+                var RT = Date.now() - startingTime; // measure RT before anything else
+
+                if (true) {
+                    correctness = 'correct';
+                } else {
+                    correctness = 'incorrect';
+                };
+
+                trial_data = {
+                    trial_type: "practiceKeyPress",
+                    trial_number: CT+1,
+                    key_pressed: keyPressed,
+                    correctness: correctness,
+                    RT: RT
+                };
+
+
+                console.log(trial_data);
+                exp.trial_data.push(trial_data);
+                $('body').off('keyup', handleKeyPress);
+                exp.findNextView();
+            }
+        };
+
+        $('body').on('keyup', handleKeyPress);
+
+        return view;
     },
-    trials: 2
+    trials: 3
 };
 
 var beginMainExp = {
@@ -109,46 +123,53 @@ var beginMainExp = {
     trials: 1
 };
 
-var main = {
-    name: 'main',
-    // render function renders the view
+var mainKeyPress = {
     render : function(CT) {
-        
-        // fill variables in view-template
-        var viewTemplate = $('#main-view').html();
-        $('#main').html(Mustache.render(viewTemplate, {
-            question: exp.trial_info.main_trials[CT].question,
-            option1:  exp.trial_info.main_trials[CT].option1,
-            option2:  exp.trial_info.main_trials[CT].option2,
-            picture:  exp.trial_info.main_trials[CT].picture
+        var view = {};
+        // what part of the progress bar is filled
+        var filled = CT * (180 / exp.views_seq[exp.currentViewCounter].trials);
+        view.name = 'main',
+        view.template = $('#main-view').html();
+        $('#main').html(Mustache.render(view.template, {
+
         }));
-        
-        // update the progress bar based on how many trials there are in this round
-        var filled = exp.currentTrialInViewCounter * (180 / exp.views_seq[exp.currentViewCounter].trials);
+        startingTime = Date.now();
+        // updates the progress bar
         $('#filled').css('width', filled);
 
-        // event listener for buttons; when an input is selected, the response
-        // and additional information are stored in exp.trial_info
-        $('input[name=answer]').on('change', function() {
-            RT = Date.now() - startingTime; // measure RT before anything else
-            trial_data = {
-                trial_type: "mainForcedChoice",
-                trial_number: CT + 1,
-                question: exp.trial_info.main_trials[CT].question,
-                option1:  exp.trial_info.main_trials[CT].option1,
-                option2:  exp.trial_info.main_trials[CT].option2,
-                option_chosen: $('input[name=answer]:checked').val(),
-                RT: RT
-            };
-            exp.trial_data.push(trial_data);
-            exp.findNextView();
-        });
-        
-        // record trial starting time
-        startingTime = Date.now();
-        
+        var handleKeyPress = function(e) {
+            var keyPressed = e.which;
+            if (keyPressed === 32) {
+                var corectness;
+                console.log(keyPressed);
+                var RT = Date.now() - startingTime; // measure RT before anything else
+
+                if (true) {
+                    correctness = 'correct';
+                } else {
+                    correctness = 'incorrect';
+                };
+
+                trial_data = {
+                    trial_type: "mainKeyPress",
+                    trial_number: CT+1,
+                    key_pressed: keyPressed,
+                    correctness: correctness,
+                    RT: RT
+                };
+
+                console.log(trial_data);
+                exp.trial_data.push(trial_data);
+                $('body').off('keyup', handleKeyPress);
+                exp.findNextView();
+            }
+        };
+
+        $('body').on('keyup', handleKeyPress);
+
+        return view;
     },
-	trials : 4
+    trials: 3
 };
 
 var postTest = {

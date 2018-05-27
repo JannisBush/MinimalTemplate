@@ -4,23 +4,18 @@ exp.customize = function() {
     // record current date and time in global_data
     this.global_data.startDate = Date();
     this.global_data.startTime = Date.now();
-    
+
     // specify view order
-    this.views_seq = [intro, 
+    this.views_seq = [intro,
                      instructions,
-                     practice,
+                     trialKeyPress,
                      beginMainExp,
-                     main,
+                     mainKeyPress,
                      /*loop([practice,
                      beginMainExp,
                      main], 2),*/
                      postTest,
                      thanks];
-
-    // prepare information about trials (procedure)
-    // randomize main trial order, but keep practice trial order fixed
-    this.trial_info.main_trials = _.shuffle(main_trials.concat(practice_trials));
-    this.trial_info.practice_trials = practice_trials;
 
     // adds progress bars to the views listed
     // view's name is the same as object's name

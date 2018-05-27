@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		
+
 		<title>browser-based experiments</title>
 
 		<!-- fonts from Google fonts -->
@@ -27,10 +27,7 @@
 		<script src="scripts/helpers.js"></script>
 		<script src="scripts/utils.js"></script>
 		<script src="scripts/submit_to_server.js"></script>
-		
-		<!-- local trial_info files -->
-		<script src="trial_info/main_trials.js"></script>
-		<script src="trial_info/practice_trials.js"></script>
+
 
 		<!-- views -->
 		<script src="views/views.js"></script>
@@ -90,25 +87,11 @@
 		<!-- Practice trial view -->
 		<script id="practice-view" type="x-tmpl-mustache">
 		<div class="view">
-			{{# title }}
-			<h1>{{ title }}</h1>
-			{{/ title }}
-			<div class="picture", align = "center">
-			<img <img src={{picture}} alt="a picture" height="100" width="100">
+
+			<div class="stimulus-container">
+				<canvas id="canvas" height="300" width="300"></canvas>
 			</div>
 
-		  <p class="question">
-		  {{# question }}
-		  {{ question }}
-		  {{/ question }}
-		  </p>
-
-			<p class="answer-container">
-				<label for="yes" class="button-answer">{{option1}}</label>
-				<input type="radio" name="answer" id="yes" value={{option1}} />
-				<input type="radio" name="answer" id="no" value={{option2}} />
-				<label for="no" class="button-answer">{{option2}}</label>
-			</p>
 		</div>
 		</script>
 
@@ -128,22 +111,10 @@
 		<!-- main view (buttons response) -->
 		<script id="main-view" type="x-tmpl-mustache">
 		<div class="view">
-		<div class="picture", align = "center">
-			<img src={{picture}} alt="a picture" height="100" width="100">
+
+		<div class="stimulus-container">
+			<canvas id="canvas" height="400" width="600"></canvas>
 		</div>
-
-		<p class="question">
-		{{# question }}
-		{{ question }}
-		{{/ question }}
-		</p>
-
-		<p class="answer-container">
-			<label for="yes" class="button-answer">{{ option1 }}</label>
-			<input type="radio" name="answer" id="yes" value={{ option1 }} />
-			<input type="radio" name="answer" id="no" value={{ option2 }} />
-			<label for="no" class="button-answer">{{option2}}</label>
-		</p>
 
 		</div>
 		</script>
