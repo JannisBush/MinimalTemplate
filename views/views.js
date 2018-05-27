@@ -3,7 +3,7 @@ var intro = {
     // introduction title
     "title": "Welcome!",
     // introduction text
-    "text": "Thank you for participating in our study. In this study, you will see pictures and click on buttons.",
+    "text": "Thank you for participating in our study. In this study, you will see rectangles and click space.",
     // introduction's slide proceeding button text
     "buttonText": "Begin experiment",
     // render function renders the view
@@ -31,7 +31,7 @@ var instructions = {
     // instruction's title
     "title": "Instructions",
     // instruction's text
-    "text": "On each trial, you will see a question and two response options. Please select the response option you like most. We start with two practice trials.",
+    "text": "On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space",
     // instuction's slide proceeding button text
     "buttonText": "Go to practice trial",
     render: function() {
@@ -63,10 +63,27 @@ var trialKeyPress = {
         $('#main').html(Mustache.render(view.template, {
 
         }));
+        var rotate = _.sample([true,false]);
+        var startingTime;
+        var target = false;
+        draw_fixation(rotate);
+        var org_pos;
+        var target_pos;
+        setTimeout(function() {
+          org_pos = draw_cue(rotate);
+          console.log("CUE!");
+          setTimeout(function() {
+            draw_fixation(rotate);
+            console.log("Fixation!");
+            setTimeout(function() {
+              target_pos = draw_target(org_pos[0], org_pos[1], rotate);
+              console.log("Target!");
+              target = true;
+              startingTime = Date.now();
+            }, 200);
+          }, 100);
+        }, 1000);
 
-        draw_fixation();
-
-        startingTime = Date.now();
         // updates the progress bar
         $('#filled').css('width', filled);
 
@@ -76,39 +93,78 @@ var trialKeyPress = {
                 var corectness;
                 console.log(keyPressed);
                 var RT = Date.now() - startingTime; // measure RT before anything else
+                if (!target){
+                  correctness = 'earlyPress';
+                  draw_blank(color="#FF0000");
+                  setTimeout(function(){
+                      console.log("nextview");
+                      exp.findNextView();
+                  }, 500);
+                }
+                else {
+                  correctness = 'correct';
+                  draw_blank();
+                  setTimeout(function(){
+                      console.log("nextview");
+                      exp.findNextView();
+                  }, 500);
+                }
+                if (_.sum(org_pos)==0){
+                  org_pos = 0;
+                } else if (_.sum(org_pos)==500) {
+                  org_pos = 2;
+                } else if (org_pos[0]==250) {
+                  org_pos = 1;
+                } else{
+                  org_pos = 3;
+                }
 
-                if (true) {
-                    correctness = 'correct';
-                } else {
-                    correctness = 'incorrect';
-                };
+                if(rotate) {
+                  org_pos = (org_pos+1)%4;
+                }
+
+                if (_.sum(target_pos)==0){
+                  target_pos = 0;
+                } else if (_.sum(target_pos)==500) {
+                  target_pos = 2;
+                } else if (target_pos[0]==250) {
+                  target_pos = 1;
+                } else{
+                  target_pos = 3;
+                }
+
+                if(rotate) {
+                  target_pos = (target_pos+1)%4;
+                }
 
                 trial_data = {
                     trial_type: "practiceKeyPress",
                     trial_number: CT+1,
                     key_pressed: keyPressed,
                     correctness: correctness,
+                    rotate: rotate,
+                    org_pos: org_pos,
+                    target_pos: target_pos,
                     RT: RT
                 };
-
-
                 console.log(trial_data);
                 exp.trial_data.push(trial_data);
-                $('body').off('keyup', handleKeyPress);
-                exp.findNextView();
+                $('body').off('keydown', handleKeyPress);
+
             }
         };
 
-        $('body').on('keyup', handleKeyPress);
+        $('body').on('keydown', handleKeyPress);
 
         return view;
     },
-    trials: 3
+    trials: 5
 };
 
 var beginMainExp = {
     name: 'beginMainExp',
-    "text": "Now that you have acquainted yourself with the procedure of the task, the actual experiment will begin.",
+    "text": "Now that you have acquainted yourself with the procedure of the task, the actual experiment will begin. " +
+    "\n On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space",
     // render function renders the view
     render: function() {
 
@@ -127,55 +183,112 @@ var beginMainExp = {
 };
 
 var mainKeyPress = {
-    render : function(CT) {
-        var view = {};
-        // what part of the progress bar is filled
-        var filled = CT * (180 / exp.views_seq[exp.currentViewCounter].trials);
-        view.name = 'main',
-        view.template = $('#main-view').html();
-        $('#main').html(Mustache.render(view.template, {
+  render : function(CT) {
+      var view = {};
+      // what part of the progress bar is filled
+      var filled = CT * (180 / exp.views_seq[exp.currentViewCounter].trials);
+      view.name = 'main',
+      view.template = $('#main-view').html();
 
-        }));
-        
-        draw_fixation();
+      $('#main').html(Mustache.render(view.template, {
 
-        startingTime = Date.now();
-        // updates the progress bar
-        $('#filled').css('width', filled);
+      }));
+      var rotate = _.sample([true,false]);
+      var startingTime;
+      var target = false;
+      draw_fixation(rotate);
+      var org_pos;
+      var target_pos;
+      setTimeout(function() {
+        org_pos = draw_cue(rotate);
+        console.log("CUE!");
+        setTimeout(function() {
+          draw_fixation(rotate);
+          console.log("Fixation!");
+          setTimeout(function() {
+            target_pos = draw_target(org_pos[0], org_pos[1], rotate);
+            console.log("Target!");
+            target = true;
+            startingTime = Date.now();
+          }, 200);
+        }, 100);
+      }, 1000);
 
-        var handleKeyPress = function(e) {
-            var keyPressed = e.which;
-            if (keyPressed === 32) {
-                var corectness;
-                console.log(keyPressed);
-                var RT = Date.now() - startingTime; // measure RT before anything else
+      // updates the progress bar
+      $('#filled').css('width', filled);
 
-                if (true) {
-                    correctness = 'correct';
-                } else {
-                    correctness = 'incorrect';
-                };
+      var handleKeyPress = function(e) {
+          keyPressed = e.which
+          if (keyPressed === 32) {
+              var corectness;
+              console.log(keyPressed);
+              var RT = Date.now() - startingTime; // measure RT before anything else
+              if (!target){
+                correctness = 'earlyPress';
+                draw_blank(color="#FF0000");
+                setTimeout(function(){
+                    console.log("nextview");
+                    exp.findNextView();
+                }, 500);
+              }
+              else {
+                correctness = 'correct';
+                draw_blank();
+                setTimeout(function(){
+                    console.log("nextview");
+                    exp.findNextView();
+                }, 500);
+              }
+              if (_.sum(org_pos)==0){
+                org_pos = 0;
+              } else if (_.sum(org_pos)==500) {
+                org_pos = 2;
+              } else if (org_pos[0]==250) {
+                org_pos = 1;
+              } else{
+                org_pos = 3;
+              }
 
-                trial_data = {
-                    trial_type: "mainKeyPress",
-                    trial_number: CT+1,
-                    key_pressed: keyPressed,
-                    correctness: correctness,
-                    RT: RT
-                };
+              if(rotate) {
+                org_pos = (org_pos+1)%4;
+              }
 
-                console.log(trial_data);
-                exp.trial_data.push(trial_data);
-                $('body').off('keyup', handleKeyPress);
-                exp.findNextView();
-            }
-        };
+              if (_.sum(target_pos)==0){
+                target_pos = 0;
+              } else if (_.sum(target_pos)==500) {
+                target_pos = 2;
+              } else if (target_pos[0]==250) {
+                target_pos = 1;
+              } else{
+                target_pos = 3;
+              }
 
-        $('body').on('keyup', handleKeyPress);
+              if(rotate) {
+                target_pos = (target_pos+1)%4;
+              }
 
-        return view;
-    },
-    trials: 3
+              trial_data = {
+                  trial_type: "mainKeyPress",
+                  trial_number: CT+1,
+                  key_pressed: keyPressed,
+                  correctness: correctness,
+                  rotate: rotate,
+                  org_pos: org_pos,
+                  target_pos: target_pos,
+                  RT: RT
+              };
+              console.log(trial_data);
+              exp.trial_data.push(trial_data);
+              $('body').off('keydown', handleKeyPress);
+
+          }
+      };
+
+      $('body').on('keydown', handleKeyPress);
+
+      return view;
+  },
+  trials: 5
 };
 
 var postTest = {
