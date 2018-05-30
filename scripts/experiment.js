@@ -10,7 +10,7 @@ exp.customize = function() {
                      instructions,
                      trialKeyPress,
                      beginMainExp,
-                     //mainKeyPress,
+                     mainKeyPress,
                      /*loop([practice,
                      beginMainExp,
                      main], 2),*/
@@ -22,7 +22,7 @@ exp.customize = function() {
     this.progress_bar_in = ['main'];
     // this.progress_bar_in = ['practice', 'main'];
     // styles: chunks, separate or default
-    this.progress_bar_style = 'default';
+    //this.progress_bar_style = 'default';
     // the width of the progress bar or a single chunk
-    this.progress_bar_width = 100;
+    //this.progress_bar_width = 100;
 };
