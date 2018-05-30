@@ -69,6 +69,75 @@ var trialKeyPress = {
         draw_fixation(rotate);
         var org_pos;
         var target_pos;
+
+        var showTarget = function(delay) {
+
+          var timeoutID = setTimeout(function() {
+            $('body').off('keydown', spaceListener);
+            submitData(null, "wait");
+          }, delay);
+
+          var submitData = function(rt, reaction) {
+            draw_blank();
+            if (_.sum(org_pos)==0){
+              org_pos = 0;
+            } else if (_.sum(org_pos)==500) {
+              org_pos = 2;
+            } else if (org_pos[0]==250) {
+              org_pos = 1;
+            } else{
+              org_pos = 3;
+            }
+
+            if(rotate) {
+              org_pos = (org_pos+1)%4;
+            }
+
+            if (_.sum(target_pos)==0){
+              target_pos = 0;
+            } else if (_.sum(target_pos)==500) {
+              target_pos = 2;
+            } else if (target_pos[0]==250) {
+              target_pos = 1;
+            } else{
+              target_pos = 3;
+            }
+
+            if(rotate) {
+              target_pos = (target_pos+1)%4;
+            }
+
+            trial_data = {
+                trial_type: "practiceKeyPress",
+                trial_number: CT+1,
+                rotate: rotate,
+                org_pos: org_pos,
+                target_pos: target_pos,
+                RT: rt,
+                reaction: reaction
+            };
+            console.log(trial_data);
+            exp.trial_data.push(trial_data);
+            $('body').off('keydown', spaceListener);
+            setTimeout(function(){
+                console.log("nextview");
+                exp.findNextView();
+            }, 500);
+          };
+
+          var spaceListener = function(e) {
+              keyPressed = e.which
+              if (keyPressed === 32) {
+                  console.log(keyPressed);
+                  var RT = Date.now() - startingTime; // measure RT before anything else
+                  submitData(RT, "space");
+                  clearTimeout(timeoutID);
+
+              }
+          };
+          $('body').on('keydown', spaceListener);
+        };
+
         setTimeout(function() {
           org_pos = draw_cue(rotate);
           console.log("CUE!");
@@ -80,81 +149,11 @@ var trialKeyPress = {
               console.log("Target!");
               target = true;
               startingTime = Date.now();
+              showTarget(2000);
             }, 200);
           }, 100);
         }, 1000);
 
-        // updates the progress bar
-        $('#filled').css('width', filled);
-
-        var handleKeyPress = function(e) {
-            keyPressed = e.which
-            if (keyPressed === 32) {
-                var corectness;
-                console.log(keyPressed);
-                var RT = Date.now() - startingTime; // measure RT before anything else
-                if (!target){
-                  correctness = 'earlyPress';
-                  draw_blank(color="#FF0000");
-                  setTimeout(function(){
-                      console.log("nextview");
-                      exp.findNextView();
-                  }, 500);
-                }
-                else {
-                  correctness = 'correct';
-                  draw_blank();
-                  setTimeout(function(){
-                      console.log("nextview");
-                      exp.findNextView();
-                  }, 500);
-                }
-                if (_.sum(org_pos)==0){
-                  org_pos = 0;
-                } else if (_.sum(org_pos)==500) {
-                  org_pos = 2;
-                } else if (org_pos[0]==250) {
-                  org_pos = 1;
-                } else{
-                  org_pos = 3;
-                }
-
-                if(rotate) {
-                  org_pos = (org_pos+1)%4;
-                }
-
-                if (_.sum(target_pos)==0){
-                  target_pos = 0;
-                } else if (_.sum(target_pos)==500) {
-                  target_pos = 2;
-                } else if (target_pos[0]==250) {
-                  target_pos = 1;
-                } else{
-                  target_pos = 3;
-                }
-
-                if(rotate) {
-                  target_pos = (target_pos+1)%4;
-                }
-
-                trial_data = {
-                    trial_type: "practiceKeyPress",
-                    trial_number: CT+1,
-                    key_pressed: keyPressed,
-                    correctness: correctness,
-                    rotate: rotate,
-                    org_pos: org_pos,
-                    target_pos: target_pos,
-                    RT: RT
-                };
-                console.log(trial_data);
-                exp.trial_data.push(trial_data);
-                $('body').off('keydown', handleKeyPress);
-
-            }
-        };
-
-        $('body').on('keydown', handleKeyPress);
 
         return view;
     },
