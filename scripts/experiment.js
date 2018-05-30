@@ -10,7 +10,7 @@ exp.customize = function() {
                      instructions,
                      trialKeyPress,
                      beginMainExp,
-                     mainKeyPress,
+                     //mainKeyPress,
                      /*loop([practice,
                      beginMainExp,
                      main], 2),*/

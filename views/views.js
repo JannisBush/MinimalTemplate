@@ -78,43 +78,56 @@ var trialKeyPress = {
           }, delay);
 
           var submitData = function(rt, reaction) {
+            var org;
             draw_blank();
             if (_.sum(org_pos)==0){
-              org_pos = 0;
+              org = 0;
             } else if (_.sum(org_pos)==500) {
-              org_pos = 2;
+              org = 2;
             } else if (org_pos[0]==250) {
-              org_pos = 1;
+              org = 1;
             } else{
-              org_pos = 3;
+              org = 3;
             }
 
             if(rotate) {
-              org_pos = (org_pos+1)%4;
+              org = (org+1)%4;
             }
 
-            if (_.sum(target_pos)==0){
-              target_pos = 0;
-            } else if (_.sum(target_pos)==500) {
-              target_pos = 2;
-            } else if (target_pos[0]==250) {
-              target_pos = 1;
-            } else{
-              target_pos = 3;
-            }
+            console.log(target_pos);
+           if(target) {
+             if (_.sum(target_pos)==0){
+                target = 0;
+              } else if (_.sum(target_pos)==500) {
+                target = 2;
+              } else if (target_pos[0]==250) {
+                target = 1;
+              } else if (target_pos[0]==0){
+                target = 3;
+              }
 
-            if(rotate) {
-              target_pos = (target_pos+1)%4;
+              if(rotate) {
+                target = (target+1)%4;
+              }
+           }
+
+            if ((target === false && reaction === "wait") || (target === true && reaction === "space")){
+              correct = true;
+            } else {
+              correct = false;
             }
 
             trial_data = {
                 trial_type: "practiceKeyPress",
                 trial_number: CT+1,
                 rotate: rotate,
-                org_pos: org_pos,
-                target_pos: target_pos,
+                org: org,
+                target: target,
                 RT: rt,
-                reaction: reaction
+                reaction: reaction,
+                correct: correct,
+                org_pos: org_pos,
+                target_pos: target_pos
             };
             console.log(trial_data);
             exp.trial_data.push(trial_data);
@@ -145,19 +158,19 @@ var trialKeyPress = {
             draw_fixation(rotate);
             console.log("Fixation!");
             setTimeout(function() {
-              target_pos = draw_target(org_pos[0], org_pos[1], rotate);
               console.log("Target!");
-              target = true;
+              target = _.sample([true,true,false]);
+              target_pos = draw_target(org_pos[0], org_pos[1], rotate, target);
               startingTime = Date.now();
               showTarget(2000);
-            }, 200);
-          }, 100);
+            }, 1000);
+          }, 1000);
         }, 1000);
 
 
         return view;
     },
-    trials: 5
+    trials: 10
 };
 
 var beginMainExp = {
