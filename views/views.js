@@ -78,29 +78,7 @@ var trialKeyPress = {
           }, delay);
 
           var submitData = function(rt, reaction) {
-            var org;
             draw_blank();
-            if (_.sum(org_pos)==0){
-              org = 0;
-            } else if (_.sum(org_pos)==500) {
-              org = 2;
-            } else if (org_pos[0]==250) {
-              org = 1;
-            } else{
-              org = 3;
-            }
-
-           if(target) {
-             if (_.sum(target_pos)==0){
-                target = 0;
-              } else if (_.sum(target_pos)==500) {
-                target = 2;
-              } else if (target_pos[0]==250) {
-                target = 1;
-              } else if (target_pos[0]==0){
-                target = 3;
-              }
-           }
 
             if ((target === false && reaction === "wait") || (target === true && reaction === "space")){
               correct = true;
@@ -112,13 +90,13 @@ var trialKeyPress = {
                 trial_type: "practiceKeyPress",
                 trial_number: CT+1,
                 rotate: rotate,
-                org: org,
-                target: target,
+                org: org_pos[2],
+                target: target_pos[2],
                 RT: rt,
                 reaction: reaction,
                 correct: correct,
-                org_pos: org_pos,
-                target_pos: target_pos
+                org_pos: org_pos.slice(0,2),
+                target_pos: target_pos.slice(0,2)
             };
             console.log(trial_data);
             exp.trial_data.push(trial_data);
@@ -161,7 +139,7 @@ var trialKeyPress = {
 
         return view;
     },
-    trials: 10
+    trials: 3
 };
 
 var beginMainExp = {
