@@ -90,11 +90,6 @@ var trialKeyPress = {
               org = 3;
             }
 
-            if(rotate) {
-              org = (org+1)%4;
-            }
-
-            console.log(target_pos);
            if(target) {
              if (_.sum(target_pos)==0){
                 target = 0;
@@ -104,10 +99,6 @@ var trialKeyPress = {
                 target = 1;
               } else if (target_pos[0]==0){
                 target = 3;
-              }
-
-              if(rotate) {
-                target = (target+1)%4;
               }
            }
 
