@@ -7,10 +7,11 @@ exp.customize = function() {
 
     // specify view order
     this.views_seq = [intro,
+                     startSliderRating,
                      instructions,
                      trialKeyPress,
-                     beginMainExp,
-                     mainKeyPress,
+                     //beginMainExp,
+                     //mainKeyPress,
                      /*loop([practice,
                      beginMainExp,
                      main], 2),*/

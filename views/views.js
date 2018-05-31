@@ -26,6 +26,62 @@ var intro = {
     trials: 1
 };
 
+var startSliderRating = {
+    render : function(CT) {
+        var view = {};
+        view.name = 'start-questions',
+        view.template = $('#start-view-slider-response').html();
+        view.response = $('#response').html();
+        var response1;
+        var response2;
+        var response3;
+        var start_data = {};
+        start_data.question1 = "How hungry are you?";
+        start_data.option11 = "Not at all";
+        start_data.option12 = "Very";
+        start_data.question2 = "How tired are you?";
+        start_data.option21 = "A little";
+        start_data.option22 = "I feel dead";
+        start_data.question3 = "AX";
+        start_data.option31 = "BX";
+        start_data.option32 = "CX";
+        $('#main').html(Mustache.render(view.template, {
+            question1: start_data.question1,
+            option11: start_data.option11,
+            option12: start_data.option12,
+            question2: start_data.question2,
+            option21: start_data.option21,
+            option22: start_data.option22,
+            question3: start_data.question3,
+            option31: start_data.option31,
+            option32: start_data.option32
+        }));
+        startingTime = Date.now();
+        response1 = $('#response1');
+        response2 = $('#response2');
+        response3 = $('#response3');
+
+        // checks if the slider has been changed
+        response1.on('change', function() {
+            $('#next').removeClass('nodisplay');
+        });
+        response1.on('click', function() {
+            $('#next').removeClass('nodisplay');
+        });
+
+        $('#next').on('click', function() {
+            exp.global_data.hungry = response1.val(),
+            exp.global_data.tired = response2.val(),
+            exp.global_data.bx = response3.val(),
+
+          exp.findNextView();
+        });
+
+        return view;
+    },
+    trials: 1
+};
+
 var instructions = {
     name: 'instructions',
     // instruction's title

@@ -67,6 +67,49 @@
 		</div>
 		</script>
 
+		<!-- Trial view (slider response) -->
+		<script id="start-view-slider-response" type="x-tmpl-mustache">
+		<div class="view">
+		<div class="clearfix"></div>
+		<p class="question">
+		{{# question1 }}
+		{{ question1 }}
+		{{/ question1 }}
+		</p>
+
+		<p class="answer-container slider-container">
+			<span class="unnatural">{{ option11 }}</span>
+			<input type="range" id="response1" class="slider-response" min="0" max="100" value="50"/>
+			<span class="natural">{{ option12 }}</span>
+		</p>
+
+		<p class="question">
+		{{# question2 }}
+		{{ question2 }}
+		{{/ question2 }}
+		</p>
+
+		<p class="answer-container slider-container">
+			<span class="unnatural">{{ option21 }}</span>
+			<input type="range" id="response2" class="slider-response" min="0" max="100" value="50"/>
+			<span class="natural">{{ option22 }}</span>
+		</p>
+
+		<p class="question">
+		{{# question3 }}
+		{{ question3 }}
+		{{/ question3 }}
+		</p>
+
+		<p class="answer-container slider-container">
+			<span class="unnatural">{{ option31 }}</span>
+			<input type="range" id="response3" class="slider-response" min="0" max="100" value="50"/>
+			<span class="natural">{{ option32 }}</span>
+		</p>
+		<button id="next" class="nodisplay">Next</button>
+		</div>
+		</script>
+
 		<!-- Instructions view -->
 		<script id="instructions-view" type="x-tmpl-mustache">
 		<div class="view">
