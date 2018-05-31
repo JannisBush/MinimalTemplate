@@ -58,99 +58,108 @@ var trialKeyPress = {
         view.name = 'trial',
         view.template = $('#practice-view').html();
         $('#main').html(Mustache.render(view.template, {  }));
+        var n = 0;
+        var correct_n = 0;
+        var trialLoop = function() {
+          // 50% of trials are rotated
+          var rotate = _.sample([true,false]);
+          var unset = "unset";
+          var org_pos = [unset, unset, unset];
+          var target_pos = [unset, unset, unset];
+          var startingTime;
+          var fixTO;
+          var cueTO;
+          var fix2TO;
+          var targetTO;
+          var target = null;
+          // time between cue and target
+          var timeBCT = _.sample([150,200,250]);
 
-        // 50% of trials are rotated
-        var rotate = _.sample([true,false]);
-        var unset = "unset";
-        var org_pos = [unset, unset, unset];
-        var target_pos = [unset, unset, unset];
-        var startingTime;
-        var fixTO;
-        var cueTO;
-        var fix2TO;
-        var targetTO;
-        var target = null;
-        // time between cue and target
-        var timeBCT = _.sample([150,200,250]);
+          // listen to the space bar
+          var spaceListener = function(e) {
+              keyPressed = e.which
+              if (keyPressed === 32) {
+                  var RT = Date.now() - startingTime; // measure RT before anything else
+                  // stop the timeout, because the space bar was pressed
+                  clearTimeout(fixTO);
+                  clearTimeout(cueTO);
+                  clearTimeout(fix2TO);
+                  clearTimeout(targetTO);
+                  submitData(RT, "space");
 
-        // listen to the space bar
-        var spaceListener = function(e) {
-            keyPressed = e.which
-            if (keyPressed === 32) {
-                var RT = Date.now() - startingTime; // measure RT before anything else
-                // stop the timeout, because the space bar was pressed
-                clearTimeout(fixTO);
-                clearTimeout(cueTO);
-                clearTimeout(fix2TO);
-                clearTimeout(targetTO);
-                submitData(RT, "space");
-
-            }
-        };
-
-        // draw the fixation screen
-        draw_fixation(rotate);
-        $('body').on('keydown', spaceListener);
-
-
-        // main procedure of the trial
-        // show fixation for 1000 milliseconds
-        // show cue for 100 milliseconds and record its position
-        // show the fixation screen for 200 milliseconds again
-        // show the target or a catch trial for 2000 milliseconds or until the space bar is keyPressed and record all information
-        fixTO = setTimeout(function() {
-          org_pos = draw_cue(rotate);
-          cueTO = setTimeout(function() {
-            draw_fixation(rotate);
-            fix2TO = setTimeout(function() {
-              target = _.sample([true,true,true,false]);
-              target_pos = draw_target(org_pos[0], org_pos[1], rotate, target);
-              startingTime = Date.now();
-              // submit the data after 2000 milliseconds
-              targetTO = setTimeout(function() {
-                submitData(null, "wait");
-              }, 2000)
-            }, timeBCT);
-          }, 100);
-        }, 1000);
-
-        // submits the data and draw a blank screen for 500 milliseconds
-        var submitData = function(rt, reaction) {
-          draw_blank();
-          // set whether the button press was correct or not
-          if ((target === false && reaction === "wait") || (target === true && reaction === "space")){
-            correct = true;
-          } else {
-            correct = false;
-          }
-          // set all trial_data
-          trial_data = {
-              trial_type: "practiceKeyPress",
-              trial_number: CT+1,
-              rotate: rotate,
-              org: org_pos[2],
-              target: target_pos[2],
-              RT: rt,
-              timeBCT: timeBCT,
-              reaction: reaction,
-              correct: correct,
-              org_pos: org_pos.slice(0,2),
-              target_pos: target_pos.slice(0,2)
+              }
           };
-          // push the trial data
-          exp.trial_data.push(trial_data);
-          // stops listening to the space bar
-          $('body').off('keydown', spaceListener);
-          // continue with the next view after 500 milliseconds
-          setTimeout(function(){
-              exp.findNextView();
-          }, 500);
-        };
+
+          // draw the fixation screen
+          draw_fixation(rotate);
+          $('body').on('keydown', spaceListener);
 
 
-        return view;
-    },
-    trials: 10
+          // main procedure of the trial
+          // show fixation for 1000 milliseconds
+          // show cue for 100 milliseconds and record its position
+          // show the fixation screen for 200 milliseconds again
+          // show the target or a catch trial for 2000 milliseconds or until the space bar is keyPressed and record all information
+          fixTO = setTimeout(function() {
+            org_pos = draw_cue(rotate);
+            cueTO = setTimeout(function() {
+              draw_fixation(rotate);
+              fix2TO = setTimeout(function() {
+                target = _.sample([true,true,true,false]);
+                target_pos = draw_target(org_pos[0], org_pos[1], rotate, target);
+                startingTime = Date.now();
+                // submit the data after 2000 milliseconds
+                targetTO = setTimeout(function() {
+                  submitData(null, "wait");
+                }, 2000)
+              }, timeBCT);
+            }, 100);
+          }, 1000);
+
+          // submits the data and draw a blank screen for 500 milliseconds
+          var submitData = function(rt, reaction) {
+            draw_blank();
+            // set whether the button press was correct or not
+            if ((target === false && reaction === "wait") || (target === true && reaction === "space")){
+              correct = true;
+              correct_n++;
+            } else {
+              correct = false;
+              correct_n = 0;
+            }
+            // set all trial_data
+            trial_data = {
+                trial_type: "practiceKeyPress",
+                trial_number: CT+1+n,
+                rotate: rotate,
+                org: org_pos[2],
+                target: target_pos[2],
+                RT: rt,
+                timeBCT: timeBCT,
+                reaction: reaction,
+                correct: correct,
+                org_pos: org_pos.slice(0,2),
+                target_pos: target_pos.slice(0,2)
+            };
+            // push the trial data
+            exp.trial_data.push(trial_data);
+            // stops listening to the space bar
+            $('body').off('keydown', spaceListener);
+            // continue with the next view after 500 milliseconds
+            setTimeout(function(){
+              if(correct_n === 5){
+                exp.findNextView();
+              } else {
+                n++;
+                trialLoop(n);
+              }
+            }, 500);
+          };
+          return view;
+    }
+    trialLoop(n);
+  },
+    trials: 1
 };
 
 var beginMainExp = {
