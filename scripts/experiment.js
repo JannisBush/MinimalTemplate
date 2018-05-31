@@ -14,7 +14,7 @@ exp.customize = function() {
     this.views_seq = [intro,
                      startSliderRating,
                      instructions,
-                     //trialKeyPress,
+                     trialKeyPress,
                      beginMainExp,
                      mainKeyPress,
                      loop([pauseScreen,
