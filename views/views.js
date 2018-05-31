@@ -70,6 +70,8 @@ var trialKeyPress = {
         var fix2TO;
         var targetTO;
         var target = null;
+        // time between cue and target
+        var timeBCT = _.sample([150,200,250]);
 
         // listen to the space bar
         var spaceListener = function(e) {
@@ -108,7 +110,7 @@ var trialKeyPress = {
               targetTO = setTimeout(function() {
                 submitData(null, "wait");
               }, 2000)
-            }, 200);
+            }, timeBCT);
           }, 100);
         }, 1000);
 
@@ -129,6 +131,7 @@ var trialKeyPress = {
               org: org_pos[2],
               target: target_pos[2],
               RT: rt,
+              timeBCT: timeBCT,
               reaction: reaction,
               correct: correct,
               org_pos: org_pos.slice(0,2),
