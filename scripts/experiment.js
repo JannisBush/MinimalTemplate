@@ -4,17 +4,21 @@ exp.customize = function() {
     // record current date and time in global_data
     this.global_data.startDate = Date();
     this.global_data.startTime = Date.now();
+    this.blocks = 4
+    this.remaining_blocks = this.blocks;
+    this.practice_correct_n = 10;
+    this.correctness = [];
+    this.global_data.pause_times = [];
 
     // specify view order
     this.views_seq = [intro,
                      startSliderRating,
                      instructions,
-                     trialKeyPress,
-                     //beginMainExp,
-                     //mainKeyPress,
-                     /*loop([practice,
+                     //trialKeyPress,
                      beginMainExp,
-                     main], 2),*/
+                     mainKeyPress,
+                     loop([pauseScreen,
+                     mainKeyPress], this.blocks-1),
                      postTest,
                      thanks];
 

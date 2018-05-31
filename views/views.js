@@ -40,11 +40,11 @@ var startSliderRating = {
         start_data.option11 = "Not at all";
         start_data.option12 = "Very";
         start_data.question2 = "How tired are you?";
-        start_data.option21 = "A little";
-        start_data.option22 = "I feel dead";
-        start_data.question3 = "AX";
-        start_data.option31 = "BX";
-        start_data.option32 = "CX";
+        start_data.option21 = "Not at all";
+        start_data.option22 = "Very";
+        start_data.question3 = "AX?";
+        start_data.option31 = "Not at all";
+        start_data.option32 = "Very";
         $('#main').html(Mustache.render(view.template, {
             question1: start_data.question1,
             option11: start_data.option11,
@@ -62,10 +62,10 @@ var startSliderRating = {
         response3 = $('#response3');
 
         // checks if the slider has been changed
-        response1.on('change', function() {
+        response3.on('change', function() {
             $('#next').removeClass('nodisplay');
         });
-        response1.on('click', function() {
+        response3.on('click', function() {
             $('#next').removeClass('nodisplay');
         });
 
@@ -195,7 +195,8 @@ var trialKeyPress = {
                 reaction: reaction,
                 correct: correct,
                 org_pos: org_pos.slice(0,2),
-                target_pos: target_pos.slice(0,2)
+                target_pos: target_pos.slice(0,2),
+                block: "practice"
             };
             // push the trial data
             exp.trial_data.push(trial_data);
@@ -203,7 +204,7 @@ var trialKeyPress = {
             $('body').off('keydown', spaceListener);
             // continue with the next view after 500 milliseconds
             setTimeout(function(){
-              if(correct_n === 5){
+              if(correct_n === exp.practice_correct_n){
                 exp.findNextView();
               } else {
                 n++;
@@ -220,14 +221,14 @@ var trialKeyPress = {
 
 var beginMainExp = {
     name: 'beginMainExp',
-    "text": "Now that you have acquainted yourself with the procedure of the task, the actual experiment will begin. " +
-    "\n On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space",
     // render function renders the view
     render: function() {
 
         viewTemplate = $('#begin-exp-view').html();
         $('#main').html(Mustache.render(viewTemplate, {
-            text: this.text
+            text: String.format("Now that you have acquainted yourself with the procedure of the task, the actual experiment will begin. " +
+            "\n On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space" +
+            "\n There will be {0} blocks with {1} trials each", exp.blocks, mainKeyPress.trials)
         }));
 
         // moves to the next view
@@ -239,7 +240,31 @@ var beginMainExp = {
     trials: 1
 };
 
+var pauseScreen = {
+    name: 'pauseScreen',
+    // render function renders the view
+    render: function() {
+
+        var startingTime = Date.now()
+
+        viewTemplate = $('#pause-exp-view').html();
+        $('#main').html(Mustache.render(viewTemplate, {
+            text: String.format("Perfect! You had {0} % correct in the last block. Stay focused, you still have to do {1} blocks", exp.correctness[exp.blocks-1-exp.remaining_blocks], exp.remaining_blocks)
+        }));
+
+        // moves to the next view
+        $('#next').on('click', function(e) {
+            exp.global_data.pause_times.push(Date.now()-startingTime);
+            exp.findNextView();
+        });
+
+    },
+    trials: 1
+};
+
 var mainKeyPress = {
+  "n": 0,
+  "correct_n": 0,
   render : function(CT) {
       var view = {};
       view.name = 'main',
@@ -247,87 +272,107 @@ var mainKeyPress = {
 
       $('#main').html(Mustache.render(view.template, { }));
 
-      // show the target for delay number of milliseconds and publish the data
-      var showTarget = function(delay) {
-        // submit the data after delay number of seconds
-        var timeoutID = setTimeout(function() {
-          $('body').off('keydown', spaceListener);
-          submitData(null, "wait");
-        }, delay);
-
-        // submits the data and draw a blank screen for 500 milliseconds
-        var submitData = function(rt, reaction) {
-          draw_blank();
-          // set whether the button press was correct or not
-          if ((target === false && reaction === "wait") || (target === true && reaction === "space")){
-            correct = true;
-          } else {
-            correct = false;
-          }
-          // set all trial_data
-          trial_data = {
-              trial_type: "practiceKeyPress",
-              trial_number: CT+1,
-              rotate: rotate,
-              org: org_pos[2],
-              target: target_pos[2],
-              RT: rt,
-              reaction: reaction,
-              correct: correct,
-              org_pos: org_pos.slice(0,2),
-              target_pos: target_pos.slice(0,2)
-          };
-          // push the trial data
-          exp.trial_data.push(trial_data);
-          // stops listening to the space bar
-          $('body').off('keydown', spaceListener);
-          // continue with the next view after 500 milliseconds
-          setTimeout(function(){
-              exp.findNextView();
-          }, 500);
-        };
-        // listen to the space bar
-        var spaceListener = function(e) {
-            keyPressed = e.which
-            if (keyPressed === 32) {
-                var RT = Date.now() - startingTime; // measure RT before anything else
-                submitData(RT, "space");
-                // stop the timeout, because the space bar was pressed
-                clearTimeout(timeoutID);
-
-            }
-        };
-        $('body').on('keydown', spaceListener);
-      };
-
       // 50% of trials are rotated
       var rotate = _.sample([true,false]);
-      var org_pos;
-      var target_pos;
+      var unset = "unset";
+      var org_pos = [unset, unset, unset];
+      var target_pos = [unset, unset, unset];
       var startingTime;
+      var fixTO;
+      var cueTO;
+      var fix2TO;
+      var targetTO;
+      var target = null;
+      // time between cue and target
+      var timeBCT = _.sample([150,200,250]);
+
+      // listen to the space bar
+      var spaceListener = function(e) {
+          keyPressed = e.which
+          if (keyPressed === 32) {
+              var RT = Date.now() - startingTime; // measure RT before anything else
+              // stop the timeout, because the space bar was pressed
+              clearTimeout(fixTO);
+              clearTimeout(cueTO);
+              clearTimeout(fix2TO);
+              clearTimeout(targetTO);
+              submitData(RT, "space");
+
+          }
+      };
+
       // draw the fixation screen
       draw_fixation(rotate);
+      $('body').on('keydown', spaceListener);
+
 
       // main procedure of the trial
       // show fixation for 1000 milliseconds
       // show cue for 100 milliseconds and record its position
       // show the fixation screen for 200 milliseconds again
       // show the target or a catch trial for 2000 milliseconds or until the space bar is keyPressed and record all information
-      setTimeout(function() {
+      fixTO = setTimeout(function() {
         org_pos = draw_cue(rotate);
-        setTimeout(function() {
+        cueTO = setTimeout(function() {
           draw_fixation(rotate);
-          setTimeout(function() {
+          fix2TO = setTimeout(function() {
             target = _.sample([true,true,true,false]);
             target_pos = draw_target(org_pos[0], org_pos[1], rotate, target);
             startingTime = Date.now();
-            showTarget(2000);
-          }, 200);
+            // submit the data after 2000 milliseconds
+            targetTO = setTimeout(function() {
+              submitData(null, "wait");
+            }, 2000)
+          }, timeBCT);
         }, 100);
       }, 1000);
+
+      // submits the data and draw a blank screen for 500 milliseconds
+      var submitData = function(rt, reaction) {
+        draw_blank();
+        // set whether the button press was correct or not
+        if ((target === false && reaction === "wait") || (target === true && reaction === "space")){
+          correct = true;
+          mainKeyPress.correct_n++;
+        } else {
+          correct = false;
+        }
+        mainKeyPress.n++;
+        exp.correctness[exp.blocks - exp.remaining_blocks] = (mainKeyPress.correct_n/mainKeyPress.n) * 100;
+
+        // set all trial_data
+        trial_data = {
+            trial_type: "mainKeyPress",
+            trial_number: CT+1,
+            rotate: rotate,
+            org: org_pos[2],
+            target: target_pos[2],
+            RT: rt,
+            timeBCT: timeBCT,
+            reaction: reaction,
+            correct: correct,
+            org_pos: org_pos.slice(0,2),
+            target_pos: target_pos.slice(0,2),
+            block: exp.blocks+1 - exp.remaining_blocks
+        };
+        // push the trial data
+        exp.trial_data.push(trial_data);
+        // stops listening to the space bar
+        $('body').off('keydown', spaceListener);
+        // continue with the next view after 500 milliseconds
+        setTimeout(function(){
+            if (mainKeyPress.n === mainKeyPress.trials){
+              exp.remaining_blocks--;
+              mainKeyPress.n = 0;
+              mainKeyPress.correct_n = 0;
+            }
+            exp.findNextView();
+        }, 500);
+      };
       return view;
-  },
-  trials: 10
+
+},
+  trials: 25
 };
 
 var postTest = {
@@ -341,9 +386,10 @@ var postTest = {
         viewTemplate = $('#post-test-view').html();
         $('#main').html(Mustache.render(viewTemplate, {
             title: this.title,
-            text: this.text,
+            text: String.format("You got {0} % correct overall.", _.sum(exp.correctness)/exp.blocks)  + this.text,
             buttonText: this.buttonText
         }));
+        console.log(exp.correctness);
 
         $('#next').on('click', function(e) {
             // prevents the form from submitting
