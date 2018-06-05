@@ -3,7 +3,7 @@ var intro = {
     // introduction title
     "title": "Welcome!",
     // introduction text
-    "text": "Thank you for participating in our study. In this study, you will see rectangles and have to press the space bar. The experiment will take around 10 minutes and needs your full attention. If you don't have enough time now, please come back later.",
+    "text": "Thank you for participating in our study. In this study, you will see rectangles and have to press the space bar. The experiment will take around 10 minutes and needs your full attention. If you don't have enough time now or your environment is likely to distract you, please come back later.",
     // introduction's slide proceeding button text
     "buttonText": "Begin experiment",
     // render function renders the view
@@ -131,7 +131,7 @@ var example = {
                 ins_text++;
                 if (ins_text === 1){
                     org_pos = draw_cue();
-                    example.text = "Then a cue (white rectangle) will appear at one end of one of the two rectangles. You have to fixate the cross in the middle. Press the space bar to continue the example.";
+                    example.text = "Then one end of one of the two rectangles will disappear for a short frame. This is a clue which tells you that the target you will have to respond to will come up shortly after.  Please remember to fixate the cross in the middle. Press the space bar to continue the example.";
                     $('#main').html(Mustache.render(viewTemplate, {
                         text: example.text,
                     }));
@@ -139,7 +139,7 @@ var example = {
                     org_pos = draw_cue();
 
                 } else if (ins_text === 2){
-                    example.text = "After a short time a target (black rectangle) will appear at one end of the two rectangles (likely to be at the same place as the cue was). Now you have to press the space bar as fast as possible. Press the space bar to continue the example.";
+                    example.text = "After a short time a target (black cube) will appear at one end of the two rectangles. Now you have to press the space bar as fast as possible, since we measure your reaction time. Press the space bar to continue the example.";
                     $('#main').html(Mustache.render(viewTemplate, {
                         text: example.text,
                     }));
@@ -171,7 +171,7 @@ var instructions2 = {
     // instruction's title
     "title": "Instructions",
     // instruction's text
-    "text": "Sometimes there will be no target, then you have to wait until the next trial will start (two seconds). The real experiment will start, after you completed 10 correct trials in a row. Pressing the space bar, if there is a target or waiting, if there is no target. Please be as fast as possible, without making any mistakes.",
+    "text": "Sometimes there will be no target in which case you have to wait until the next trial will start (two seconds). The real experiment will start, after you completed 10 correct trials in a row. Pressing the space bar if there is a target or waiting if there is no target. Please be as fast as possible, without making any mistakes. Please put the curser to the edge of your screen so it wont influence your attention.",
     // instuction's slide proceeding button text
     "buttonText": "Start trials",
     render: function() {
