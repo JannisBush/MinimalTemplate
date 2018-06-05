@@ -200,6 +200,7 @@ var trialKeyPress = {
         $('#main').html(Mustache.render(view.template, {  }));
         var n = 0;
         var correct_n = 0;
+        var incorrect_n = 0;
         var trialLoop = function() {
           // 50% of trials are rotated
           var rotate = _.sample([true,false]);
@@ -263,9 +264,15 @@ var trialKeyPress = {
             if ((target === false && reaction === "wait") || (target === true && reaction === "space")){
               correct = true;
               correct_n++;
+              incorrect_n = 0;
             } else {
               correct = false;
               correct_n = 0;
+              incorrect_n++;
+              if (incorrect_n === 5){
+                alert("You have to press the space bar, if there is a black target and wait otherwise.");
+                incorrect_n = 0;
+              }
             }
             // set all trial_data
             trial_data = {
