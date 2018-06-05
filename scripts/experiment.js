@@ -6,14 +6,16 @@ exp.customize = function() {
     this.global_data.startTime = Date.now();
     this.blocks = 4
     this.remaining_blocks = this.blocks;
-    this.practice_correct_n = 10;
+    this.practice_correct_n = 2;
     this.correctness = [];
     this.global_data.pause_times = [];
 
     // specify view order
     this.views_seq = [intro,
                      startSliderRating,
-                     instructions,
+                     instructions1,
+                     example,
+                     instructions2,
                      trialKeyPress,
                      beginMainExp,
                      mainKeyPress,
