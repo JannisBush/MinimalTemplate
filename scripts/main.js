@@ -26,7 +26,7 @@ exp.init = function(){
 
 	// call user-defined costumization function
 	this.customize();
-	
+
 	// flatten views_seq after possible 'loop' insertions
 	this.views_seq = _.flatten(this.views_seq);
 	// create Progress Bar/s
@@ -41,7 +41,7 @@ exp.init = function(){
 	this.currentTrialCounter = 0;
 	this.currentTrialInViewCounter = 0;
 	this.currentView = this.findNextView();
-	
+
 	// user does not (should not) change the following information
 	// checks the config _deploy.deployMethod is MTurk or MTurkSandbox,
 	// sets the submission url to MTukr's servers
@@ -54,7 +54,7 @@ exp.init = function(){
 	config_deploy.liveExperiment = config_deploy.deployMethod !== "debug";
 	config_deploy.prolificCode = '9BTAOPQD';
 	config_deploy.is_MTurk = config_deploy.MTurk_server !== "";
-	config_deploy.submissionURL = config_deploy.deployMethod == "localServer"? "http://localhost:4000/api/submit_experiment/" + config_deploy.experimentID : "https://babe-backend.herokuapp.com/api/submit_experiment/" + config_deploy.experimentID;
+	config_deploy.submissionURL = config_deploy.deployMethod == "localServer"? "http://localhost:4000/api/submit_experiment/" + config_deploy.experimentID : "https://babe-labprac.herokuapp.com/api/submit_experiment/" + config_deploy.experimentID;
 	console.log("deployMethod: " + config_deploy.deployMethod);
 	console.log("live experiment: " + config_deploy.liveExperiment);
 	console.log("runs on MTurk: " + config_deploy.is_MTurk);
@@ -173,11 +173,11 @@ exp.submit = function() {
 	// construct data object for output
 	var data = {
 		'author': config_deploy.author,
-		'experiment_id': config_deploy.experiment_id,
+		'experiment_id': config_deploy.experimentID,
 		'description': config_deploy.description,
 		'trials': addEmptyColumns(exp.trial_data)
 	};
-	
+
 	// add more fields depending on the deploy method
 	if (config_deploy.is_MTurk) {
 		var HITData = getHITData();
@@ -199,7 +199,7 @@ exp.submit = function() {
 	// merge in global data accummulated so far
 	// this could be unsafe if 'exp.global_data' contains keys used in 'data'!!
 	data = _.merge(exp.global_data, data);
-	
+
 	// parses the url to get thr assignmentId and workerId
 	var getHITData = function() {
 		var url = window.location.href;
