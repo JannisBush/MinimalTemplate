@@ -3,7 +3,7 @@ var intro = {
     // introduction title
     "title": "Welcome!",
     // introduction text
-    "text": "Thank you for participating in our study. In this study, you will see rectangles and click space.",
+    "text": "Thank you for participating in our study. In this study, you will see rectangles and have to click space. The experiment will take around 7 minutes and needs your full attention. If you don't have enough time now, please come back later.",
     // introduction's slide proceeding button text
     "buttonText": "Begin experiment",
     // render function renders the view
@@ -27,6 +27,7 @@ var intro = {
 };
 
 var startSliderRating = {
+  "text": "Please answer these question about how you feel at the moment. Afterwards, we can begin with the experiment.",
     render : function(CT) {
         var view = {};
         view.name = 'start-questions',
@@ -42,10 +43,11 @@ var startSliderRating = {
         start_data.question2 = "How tired are you?";
         start_data.option21 = "Not at all";
         start_data.option22 = "Very";
-        start_data.question3 = "AX?";
+        start_data.question3 = "How happy are you?";
         start_data.option31 = "Not at all";
         start_data.option32 = "Very";
         $('#main').html(Mustache.render(view.template, {
+            text: this.text,
             question1: start_data.question1,
             option11: start_data.option11,
             option12: start_data.option12,
@@ -72,7 +74,7 @@ var startSliderRating = {
         $('#next').on('click', function() {
             exp.global_data.hungry = response1.val(),
             exp.global_data.tired = response2.val(),
-            exp.global_data.bx = response3.val(),
+            exp.global_data.happy = response3.val(),
 
           exp.findNextView();
         });
@@ -82,14 +84,96 @@ var startSliderRating = {
     trials: 1
 };
 
-var instructions = {
+var instructions1 = {
     name: 'instructions',
     // instruction's title
     "title": "Instructions",
     // instruction's text
-    "text": "On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space",
+    "text": "On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space.",
     // instuction's slide proceeding button text
-    "buttonText": "Go to practice trial",
+    "buttonText": "See an example",
+    render: function() {
+
+        viewTemplate = $("#instructions-view").html();
+        $('#main').html(Mustache.render(viewTemplate, {
+            title: this.title,
+            text: this.text,
+            button: this.buttonText
+        }));
+
+        // moves to the next view
+        $('#next').on('click', function(e) {
+            exp.findNextView();
+        });
+
+    },
+    trials: 1
+};
+
+var example = {
+    name: 'example',
+    // instruction's text
+    "text": "First you will see two rectangles. Press J to continue example.",
+    render: function() {
+
+        var ins_text = 0;
+        viewTemplate = $("#example-view").html();
+        $('#main').html(Mustache.render(viewTemplate, {
+            text: this.text,
+        }));
+        draw_fixation();
+        var org_pos;
+        var target_pos;
+
+        var jListener = function(e) {
+            keyPressed = e.which
+            if (keyPressed === 74) {
+                ins_text++;
+                if (ins_text === 1){
+                    org_pos = draw_cue();
+                    example.text = "Then a cue (white rectangle) will appear at one end of one of the two rectangles. You have to fixate the cross in the middle. Press J to continue example.";
+                    $('#main').html(Mustache.render(viewTemplate, {
+                        text: example.text,
+                    }));
+                    draw_fixation();
+                    org_pos = draw_cue();
+
+                } else if (ins_text === 2){
+                    example.text = "After a short time a target (black rectangle) will appear at one end of the two rectangles (likely to be at the same place as the cue was). Now you have to press space as fast as possible. Press J to continue example.";
+                    $('#main').html(Mustache.render(viewTemplate, {
+                        text: example.text,
+                    }));
+                    draw_fixation();
+                    target_pos = draw_target(org_pos[0],org_pos[1]);
+                } else if (ins_text === 3){
+                    example.text = "Sometimes the rectangles will be rotated, everything else will stay the same. Press J to continue.";
+                    $('#main').html(Mustache.render(viewTemplate, {
+                        text: example.text,
+                    }));
+                    draw_fixation(true);
+                } else if (ins_text === 4){
+                    $('body').off('keydown', jListener);
+                    exp.global_data.org_pos_ex = org_pos[2];
+                    exp.global_data.target_pos_ex = target_pos[2];
+                    exp.findNextView();
+                }
+            }
+        };
+        $('body').on('keydown', jListener);
+
+
+    },
+    trials: 1
+};
+
+var instructions2 = {
+    name: 'instructions',
+    // instruction's title
+    "title": "Instructions",
+    // instruction's text
+    "text": "Sometimes there will be no target, then you have to wait until the next trial will start (two seconds). The real experiment will start, after you completed 10 correct trials in a row. Please be as fast as possible, without making any mistakes.",
+    // instuction's slide proceeding button text
+    "buttonText": "Start trials",
     render: function() {
 
         viewTemplate = $("#instructions-view").html();
@@ -227,8 +311,8 @@ var beginMainExp = {
         viewTemplate = $('#begin-exp-view').html();
         $('#main').html(Mustache.render(viewTemplate, {
             text: String.format("Now that you have acquainted yourself with the procedure of the task, the actual experiment will begin. " +
-            "\n On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space" +
-            "\n There will be {0} blocks with {1} trials each", exp.blocks, mainKeyPress.trials)
+            "\n On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press Space." +
+            "\n There will be {0} blocks with {1} trials each.", exp.blocks, mainKeyPress.trials)
         }));
 
         // moves to the next view
@@ -249,7 +333,7 @@ var pauseScreen = {
 
         viewTemplate = $('#pause-exp-view').html();
         $('#main').html(Mustache.render(viewTemplate, {
-            text: String.format("Perfect! You had {0} % correct in the last block. Stay focused, you still have to do {1} blocks", exp.correctness[exp.blocks-1-exp.remaining_blocks], exp.remaining_blocks)
+            text: String.format("Perfect! You had {0} % correct in the last block. Stay focused, you still have to do {1} block{2}.", exp.correctness[exp.blocks-1-exp.remaining_blocks], exp.remaining_blocks, exp.remaining_blocks>1? "s":"")
         }));
 
         // moves to the next view

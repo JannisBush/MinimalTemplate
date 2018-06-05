@@ -71,7 +71,13 @@
 		<script id="start-view-slider-response" type="x-tmpl-mustache">
 		<div class="view">
 		<div class="clearfix"></div>
-		
+
+		{{# text }}
+		<section class="text-container">
+			<p class="text">{{ text }}</p>
+		</section>
+		{{/ text }}
+
 		<p class="question">
 		{{# question1 }}
 		{{ question1 }}
@@ -128,9 +134,23 @@
 		</view>
 		</script>
 
+		<!-- Example view -->
+		<script id="example-view" type="x-tmpl-mustache">
+		<div class="view">
+			{{# text }}
+			<section class="text-container">
+				<p class="text">{{ text }}</p>
+			</section>
+			{{/ text }}
+			<div class="stimulus-container">
+				<canvas id="canvas" height="500" width="500"></canvas>
+			</div>
+		</view>
+		</script>
+
 		<!-- Practice trial view -->
 		<script id="practice-view" type="x-tmpl-mustache">
-		<div class="view">
+		<div class="view view_react">
 
 			<div class="stimulus-container">
 				<canvas id="canvas" height="500" width="500"></canvas>
@@ -154,7 +174,7 @@
 
 		<!-- main view (buttons response) -->
 		<script id="main-view" type="x-tmpl-mustache">
-		<div class="view">
+		<div class="view view_react">
 
 		<div class="stimulus-container">
 			<canvas id="canvas" height="500" width="500"></canvas>
