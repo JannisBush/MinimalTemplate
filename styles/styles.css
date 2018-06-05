@@ -1,3 +1,7 @@
+.view_react {
+cursor: none;
+}
+
 html,
 body {
     height: 100%;
@@ -164,7 +168,7 @@ button:focus {
 
 /* slider response */
 
-/* slider  ---o--- 
+/* slider  ---o---
     --- track
      o  thumb
 */
@@ -249,7 +253,7 @@ input[type="range"]:focus::-moz-range-thumb {
     text-align: left;
 }
 
-.post-test-templ form input, 
+.post-test-templ form input,
 .post-test-templ form select {
     width: 200px;
     max-width: 200px;
@@ -322,7 +326,7 @@ input[type="range"]:focus::-moz-range-thumb {
     padding: 8px;
 }
 
-#debugresults tr:nth-child(even){ 
+#debugresults tr:nth-child(even){
     background-color: #f2f2f2;
 }
 
