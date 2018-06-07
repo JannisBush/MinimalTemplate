@@ -75,11 +75,11 @@ var draw_cue = function(rotate=false) {
     if (_.sum(org_pos) === 0){
       org = 0;
     } else if (_.sum(org_pos) === (cw + ch) - 2*width) {
-      org = 2;
+      org = 3;
     } else if (org_pos[0] === cw - width) {
       org = 1;
     } else{
-      org = 3;
+      org = 4;
     }
     org_pos[2] = org;
 
@@ -112,11 +112,11 @@ var draw_target = function(org_x, org_y, rotate=false, target=true) {
       if (_.sum(react)==0){
         target_n = 0;
       } else if (_.sum(react)==(cw+ch)-2*width) {
-        target_n = 2;
+        target_n = 3;
       } else if (react[0]==cw-width) {
         target_n = 1;
       } else if (react[0]==0){
-        target_n = 3;
+        target_n = 4;
       }
       react[2] = target_n;
 
