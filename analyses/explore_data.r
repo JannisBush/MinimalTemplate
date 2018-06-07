@@ -4,6 +4,8 @@ setwd("where the data is")
 
 # read the data
 d = readr::read_csv('name of data.csv') %>% 
+  # TODO some data exploration at start (comments, pause times etc.)
+  
   # only look at main trials
   filter(block != "practice") %>%
   # kick out all participants with less than 85% correct in the main trials
@@ -25,9 +27,9 @@ d = readr::read_csv('name of data.csv') %>%
   # get the condition horizontal vs vertical orientation
   mutate(conditionOrientation = factor(case_when(rotate == "false" ~ "vertical",
                                                  TRUE ~ "horizontal"), ordered = T, levels = c("horizontal", "vertical")))
-  # TODO kick out all trials faster than 3 std from mean for all 3 conditions
+  # TODO kick out all trials faster than 3 std from mean for all 3 conditions or something similar
   
-  # TODO kick out all trials slower than 3 std from mean for all 3 conditions
+  # TODO kick out all trials slower than 3 std from mean for all 3 conditions or somethin similar
   
   # TODO other stuff?
 
@@ -61,7 +63,7 @@ summary(modAOV)
 
 # second analysis only for the invalid cues 
 d_invalid = d %>% 
-  # TODO subtract mean of the valid_cue condition from the invalid_cue condition
+  # TODO subtract medians of the valid_cue condition from the invalid_cue condition
   
   # kick out all valid_cues
   filter(conditionCue == "invalid_cue") %>%
@@ -98,3 +100,10 @@ summary(modInvalidLM)
 modInvalidAOV = aov(log(RT) ~ conditionRectangle + conditionField + conditionShift, data = d_invalid)  
 summary(modInvalidAOV)
 
+# TODO add further plots and analyses
+
+# TODO include analysis of blocks
+
+# TODO include time between cue and target 
+
+# TODO questions at start etc. 
