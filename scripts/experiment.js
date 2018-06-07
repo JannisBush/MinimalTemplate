@@ -4,7 +4,7 @@ exp.customize = function() {
     // record current date and time in global_data
     this.global_data.startDate = Date();
     this.global_data.startTime = Date.now();
-    this.blocks = 4
+    this.blocks = 6
     this.remaining_blocks = this.blocks;
     this.practice_correct_n = 10;
     this.correctness = [];

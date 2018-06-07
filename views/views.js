@@ -3,7 +3,7 @@ var intro = {
     // introduction title
     "title": "Welcome!",
     // introduction text
-    "text": "Thank you for participating in our study. In this study, you will see rectangles and have to press the space bar. The experiment will take around 10 minutes and needs your full attention. If you don't have enough time now or your environment is likely to distract you, please come back later.",
+    "text": "Thank you for participating in our study. In this study, you will see rectangles and have to press the space bar. The experiment will take around 10 minutes and needs your full attention. If you don't have enough time now or your environment is likely to distract you, please come back later. Before starting the experiment, please turn off your mobile devices and notifications on your computer.",
     // introduction's slide proceeding button text
     "buttonText": "Begin experiment",
     // render function renders the view
@@ -139,7 +139,7 @@ var example = {
                     org_pos = draw_cue();
 
                 } else if (ins_text === 2){
-                    example.text = "After a short time a target (black cube) will appear at one end of the two rectangles. Now you have to press the space bar as fast as possible, since we measure your reaction time. Press the space bar to continue the example.";
+                    example.text = "After a short time a target (black cube) will appear at one end of the two rectangles. In the experiment you now would have to press the space bar as fast as possible, since we measure your reaction time. Press the space bar to continue the example.";
                     $('#main').html(Mustache.render(viewTemplate, {
                         text: example.text,
                     }));
@@ -171,7 +171,7 @@ var instructions2 = {
     // instruction's title
     "title": "Instructions",
     // instruction's text
-    "text": "Sometimes there will be no target in which case you have to wait until the next trial will start (two seconds). The real experiment will start, after you completed 10 correct trials in a row. Pressing the space bar if there is a target or waiting if there is no target. Please be as fast as possible, without making any mistakes. Please put the curser to the edge of your screen so it wont influence your attention.",
+    "text": "Your task is to press the space bar as soon as you see the target (black cube). However, sometimes there will be no target in which case you have to wait until the next trial will start (two seconds). The real experiment will start, after you completed 10 correct trials in a row. Pressing the space bar if there is a target or waiting if there is no target. Please be as fast as possible, without making any mistakes.",
     // instuction's slide proceeding button text
     "buttonText": "Start trials",
     render: function() {
@@ -319,7 +319,7 @@ var beginMainExp = {
         $('#main').html(Mustache.render(viewTemplate, {
             text: String.format("Now that you have acquainted yourself with the procedure of the task, the actual experiment will begin. " +
             "\n On each trial, you will see two rectangles. Fixate the cross in the middle and when one end of one rectangle gets black press the space bar." +
-            "\n There will be {0} blocks with {1} trials each.", exp.blocks, mainKeyPress.trials)
+            "\n There will be {0} blocks with {1} trials each. Please be as fast as possible without making any mistakes.", exp.blocks, mainKeyPress.trials)
         }));
 
         // moves to the next view
@@ -477,7 +477,7 @@ var postTest = {
         viewTemplate = $('#post-test-view').html();
         $('#main').html(Mustache.render(viewTemplate, {
             title: this.title,
-            text: String.format("You got {0} % correct overall.", _.sum(exp.correctness)/exp.blocks)  + this.text,
+            text: String.format("You got {0} % correct overall. ", _.sum(exp.correctness)/exp.blocks)  + this.text,
             buttonText: this.buttonText
         }));
         console.log(exp.correctness);
