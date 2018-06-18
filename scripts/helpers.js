@@ -102,7 +102,7 @@ var draw_target = function(org_x, org_y, rotate=false, target=true) {
 
       // randomly choose a target position
       // 3/5 cue position, 1/5 move vertically, 1/5 move horizontally
-      var react = _.sample([[org_x,org_y],[org_x,org_y],[org_x,org_y],[(org_x+cw-width)%(cw-width),org_y],[org_x,(org_y+ch-width)%(ch-width)]]);
+      var react = _.sample([[org_x,org_y],[org_x,org_y],[org_x,org_y],[(org_x+cw-width)%(2*(cw-width)),org_y],[org_x,(org_y+ch-width)%(2*(ch-width))]]);
 
       // draw a black rectangle as target
       ctx.fillStyle="#000000";
