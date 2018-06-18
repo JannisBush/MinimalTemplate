@@ -1,7 +1,8 @@
 library(tidyverse)
 #library(lme4)
 
-setwd("/data/Share/SS18/Kurse/PsyLab/Data")
+#setwd("/data/Share/SS18/Kurse/PsyLab/Data")
+setwd("F:/SS18/Kurse/PsyLab")
 
 # read the data
 d = readr::read_csv('results_Object-biases-in-visual-attentionPilot2_JannisAndTill.csv') %>% 
@@ -12,13 +13,14 @@ d = readr::read_csv('results_Object-biases-in-visual-attentionPilot2_JannisAndTi
   filter(correctnessScore > 0.85) %>% ungroup() %>%
   # only look at correct trials (correct==true) and kick out catch trials (target!=false)
   filter(correct == "true" & target != "false") %>% 
-  #### only for test data, changed in the experiment so not necessary (forbidden) for the the real data v
+  # change some columns to be in the right format
   mutate(org = as.integer(org),
          timeBCT = as.factor(timeBCT),
+         ### only for test data (changed in javascript)
          orgPrime = ifelse(org <= 1, org,org+1),
          target = as.integer(target),
+         ### only for test data (cahnged in javascript)
          targetPrime = ifelse(target <= 1, target,target+1)) %>%
-  ####^
   # get the main conditions valid_cue vs invalid_cue 
   mutate(conditionCue = factor(case_when( orgPrime == targetPrime ~ "valid_cue",
                                             TRUE ~ "invalid_cue"), ordered = T, levels = c("valid_cue", "invalid_cue"))) %>%
@@ -58,7 +60,48 @@ ggplot(d_clean, aes(x = log(RT), color = conditionOrientation)) + geom_density()
 ggplot(d_clean, aes(y = log(RT), x = timeBCT)) + geom_violin()
 ggplot(d_clean, aes(x = log(RT), color = timeBCT)) + geom_density()
 
-# TODO check if all combinations of conditions are normal distributed
+# check if all combinations of conditions are normal distributed
+
+#lconditionCue = levels(d_clean$conditionCue)
+lconditionField = levels(d_clean$conditionField)
+lconditionOrientation = levels(d_clean$conditionOrientation)
+ltimeBCT = levels(d_clean$timeBCT)
+
+par(mfrow=c(4,3))
+for(i in "valid_cue"){
+  for(j in lconditionField){
+    for(k in lconditionOrientation){
+      for(l in ltimeBCT){
+        tmp = with(d_clean,RT[conditionCue==i & conditionField==j & conditionOrientation==k & timeBCT==l] )
+        if (length(tmp)==0){
+          tmp = 0
+        }
+        qqnorm(tmp,main=paste(i,j,k,l,sep="/"))
+        qqline(tmp)
+      }
+    }
+  }
+}
+
+par(mfrow=c(4,3))
+for(i in "invalid_cue"){
+  for(j in lconditionField){
+    for(k in lconditionOrientation){
+      for(l in ltimeBCT){
+        tmp = with(d_clean,RT[conditionCue==i & conditionField==j & conditionOrientation==k & timeBCT==l] )
+        if (length(tmp)==0){
+          tmp = 0
+        }
+        qqnorm(tmp,main=paste(i,j,k,l,sep="/"))
+        qqline(tmp)
+      }
+    }
+  }
+}
+
+# or only check the conditions as such???
+qqnorm(d_clean$RT[d_clean$conditionCue=="valid_cue"], main="Trials with Valid Cue")
+qqline(d_clean$RT[d_clean$conditionCue=="valid_cue"])
 
 
 # do a linear model to predict log RT valid_cue vs invalid_cue, left vs right and horizontal vs vertical and timeBCT
@@ -95,7 +138,28 @@ d_invalid_summary = d_invalid_clean %>% group_by(conditionRectangle, conditionFi
   ungroup() 
 d_invalid_summary
 
-# TODO check if all combinations of conditions are normal distributed 
+# check if all combinations of conditions are normal distributed 
+lconditionRectangle = levels(d_invalid_clean$conditionRectangle)
+lconditionField = levels(d_invalid_clean$conditionField)
+lconditionShift = levels(d_invalid_clean$conditionShift)
+
+par(mfrow=c(4,2))
+for(i in lconditionRectangle){
+  for(j in lconditionField){
+    for(k in lconditionShift){
+      tmp = with(d_invalid_clean,RT[conditionRectangle==i & conditionField==j & conditionShift==k] )
+      if (length(tmp)==0){
+        tmp = 0
+      }
+      qqnorm(tmp,main=paste(i,j,k,sep="/"))
+      qqline(tmp)
+    }
+  }
+}
+
+# or only check the conditions as such???
+qqnorm(d_invalid_clean$RT[d_invalid_clean$conditionRectangle=="within_object"], main="Wihtin-object trials")
+qqline(d_invalid_clean$RT[d_invalid_clean$conditionRectangle=="within_object"])
 
 # plot condition between_object vs within_object
 ggplot(d_invalid_clean, aes(y = log(RT), x = conditionRectangle)) + geom_violin()
