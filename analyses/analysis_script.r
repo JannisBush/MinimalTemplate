@@ -65,47 +65,14 @@ ggplot(d_clean, aes(x = log(RT), color = conditionOrientation)) + geom_density()
 ggplot(d_clean, aes(y = log(RT), x = timeBCT)) + geom_violin()
 ggplot(d_clean, aes(x = log(RT), color = timeBCT)) + geom_density()
 
-# check if all combinations of conditions are normal distributed
-lconditionField = levels(d_clean$conditionField)
-lconditionOrientation = levels(d_clean$conditionOrientation)
-ltimeBCT = levels(d_clean$timeBCT)
-
-par(mfrow=c(4,3))
-for(i in "valid_cue"){
-  for(j in lconditionField){
-    for(k in lconditionOrientation){
-      for(l in ltimeBCT){
-        tmp = with(d_clean,log(RT[conditionCue==i & conditionField==j & conditionOrientation==k & timeBCT==l]) )
-        if (length(tmp)==0){
-          tmp = 0
-        }
-        qqnorm(tmp,main=paste(i,j,k,l,sep="/"))
-        qqline(tmp)
-      }
-    }
-  }
-}
-
-par(mfrow=c(4,3))
-for(i in "invalid_cue"){
-  for(j in lconditionField){
-    for(k in lconditionOrientation){
-      for(l in ltimeBCT){
-        tmp = with(d_clean,log(RT[conditionCue==i & conditionField==j & conditionOrientation==k & timeBCT==l]) )
-        if (length(tmp)==0){
-          tmp = 0
-        }
-        qqnorm(tmp,main=paste(i,j,k,l,sep="/"))
-        qqline(tmp)
-      }
-    }
-  }
-}
-
 # do a linear model to predict log RT
 # valid_cue vs invalid_cue, left vs right and horizontal vs vertical and timeBCT
 modLM = lm(log(RT) ~ conditionCue + conditionField + conditionOrientation + timeBCT, data = d_clean)
 summary(modLM)
+
+# check if all combinations of conditions are normal distributed
+qqnorm(modLM$residuals)
+qqline(modLM$residuals)
 
 ######################SECOND ANALYSIS ONLY INVALID CUES###########################
 
@@ -140,25 +107,6 @@ d_invalid_summary = d_invalid_clean %>% group_by(conditionRectangle, conditionFi
   ungroup()
 d_invalid_summary
 
-# check if all combinations of conditions are normal distributed
-lconditionRectangle = levels(d_invalid_clean$conditionRectangle)
-lconditionField = levels(d_invalid_clean$conditionField)
-lconditionShift = levels(d_invalid_clean$conditionShift)
-
-par(mfrow=c(4,2))
-for(i in lconditionRectangle){
-  for(j in lconditionField){
-    for(k in lconditionShift){
-      tmp = with(d_invalid_clean,log(RT[conditionRectangle==i & conditionField==j & conditionShift==k]) )
-      if (length(tmp)==0){
-        tmp = 0
-      }
-      qqnorm(tmp,main=paste(i,j,k,sep="/"))
-      qqline(tmp)
-    }
-  }
-}
-
 # plot condition between_object vs within_object
 ggplot(d_invalid_clean, aes(y = log(RT), x = conditionRectangle)) + geom_violin()
 ggplot(d_invalid_clean, aes(x = log(RT), color = conditionRectangle)) + geom_density()
@@ -175,6 +123,10 @@ ggplot(d_invalid_clean, aes(x = log(RT), color = conditionShift)) + geom_density
 # between_object vs within_object, left_field vs right_field and horizontal_shift vs vertical_shift
 modInvalidLM = lm(log(RT) ~ conditionRectangle + conditionField + conditionShift, data = d_invalid_clean)
 summary(modInvalidLM)
+
+# check if all combinations of conditions are normal distributed
+qqnorm(modInvalidLM$residuals)
+qqline(modInvalidLM$residuals)
 
 ######
 
