@@ -1,10 +1,11 @@
 library(tidyverse)
 
-setwd("where the data is")
-
+setwd("F:/SS18/Kurse/PsyLab/")
+#setwd("/data/Share/SS18/Kurse/PsyLab")
+#setwd("C:/Users/tillh/Desktop/Programming/R/Homework")
 
 # read the data
-d = readr::read_csv("name of data") %>% 
+d = readr::read_csv("results_final.csv") %>% 
   # only look at main trials
   filter(block != "practice") %>%
   # kick out all participants with less than 85% correct in the main trials
@@ -49,9 +50,16 @@ dsummary = d_clean %>% group_by(conditionCue, conditionField, conditionOrientati
   ungroup()
 dsummary
 
+meanCue = d_clean %>% #group_by(conditionCue) %>%
+  summarize(meanRT = mean(RT)) %>%
+  ungroup()
+meanCue
+
 # plot condition valid cue vs invalid cue
 ggplot(d_clean, aes(y = log(RT), x = conditionCue)) + geom_violin()
 ggplot(d_clean, aes(x = log(RT), color = conditionCue)) + geom_density()
+
+ggplot(d_clean, aes(x = happy, color = happy)) + geom_density()
 
 # plot condition left_field vs right_field
 ggplot(d_clean, aes(y = log(RT), x = conditionField)) + geom_violin()
