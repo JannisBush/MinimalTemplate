@@ -1,0 +1,391 @@
+---
+title: 'Experimental report: Object-biases in visual attention'
+author: "Jannis R., Till H."
+date: "6 Juli 2018"
+output: html_document
+---
+
+We replicated the first experiment from the paper “Shifting Visual Attention Between Objects and Locations: Evidence From Normal and Parietal Lesion Subjects”.[^1] The experiment is intended to investigate two questions regarding visual attention:
+
+1. Does cuing a certain location affect the visual processing of other locations? (space-based component of attention)
+
+2. Is there a difference in the visual processing of locations on an object that was cued at a different location within the object, and equidistant locations on another object? (object-based component of attention)
+
+### Design
+This experiment involves no blinding and uses within-subject repeated measurements. Every single trial is randomly generated from the set of possible trials at the moment it is displayed. 
+
+Participants see displays consisting of a fixation cross and two rectangles, either to the left and right of the fixation cross or above and below the fixation cross. Participants are instructed to press the space bar as fast as possible, if a specified target appears, or to wait until the next trial starts, if no target appears. Between the fixation and the appearance of the target a cue is displayed at one end of one rectangle for a short amount of time. 
+
+For the first question there are two interesting conditions. In *valid cue trials* the cue and the target appear at the same location and in *invalid cue trials* the target appears at a different location. For the second question we only look at the *invalid cue trials*. Here, there are two interesting distinctions. In *within-object trials* the target appears at the other end of the cued rectangle and in *between-object trials* the target appears at the equidistant end of the other rectangle.   
+Also, there are trials where no target appears (so-called *catch trials*) to filter out participants who are just clicking through the experiment. 
+
+### Participants
+Almost all of our participants were students at the University of Osnabrück and at an age between 20 and 30. We didn't offer any payment and searched for participants via mailing-lists and online platforms of the university. The experiment was open for submissions between the 25. of June and the 2. of July.
+
+### Materials
+We used the babe-framework to realize this online browser-based experiment.[^2]
+
+The displays we used were 400x400 pixel JavaScript canvases, the exact size depended on the screen and settings of the individual participant. The next image shows a sequence of a *valid cue* trial (Fixation Screen -> Cue -> Fixation Screen -> Target).
+![](https://i.imgur.com/yiiLUmO.png =300x)
+
+This image shows a sequence of an *invalid cue / within-object* trial.
+
+![](https://i.imgur.com/J8rspfn.png =300x)
+
+This image shows a sequence of an *invalid cue / between-object* trial.
+![](https://i.imgur.com/YzPSnLH.png =300x)
+
+This image shows how the horizontal rectangles looked like.  
+![](https://i.imgur.com/iCgjdJE.png =300x)
+
+### Procedure
+First, we asked the participants some general questions, afterwards every participant got an explanation of the experiment with an example trial sequence (without the time constraints) in the background. Then, the participants saw practice trials until they made ten correct responses in a row. Whenever somebody did five mistakes in a row, he got reminded of the task. Afterwards, the main experiment started which was structured in 6 blocks with 25 trials each. After each block the participant could take a break and the correctness score for the last block was displayed. In the end, he saw his overall correctness score and some additional questions, then we thanked the participant for his participation.
+
+Every trial was generated randomly with the same probabilities for every trial and every subject. First, it was decided if the two rectangles are displayed vertically or horizontally with a chance of 50% each, afterwards the cue was displayed at one end of the two rectangles (25% for every of the 4 possible locations). Next, the fixation screen was shown again for 150, 200 or 250ms (same probabilities each) and then the target or nothing, on catch trials, appeared. The probability for a catch trial was 25%. In trials where a target appeared, it was either where the cue was (75% of times), on the other end of the cued object (12,5%) or on the equidistant end of the other object (12,5%). It was never on the diagonal position.
+
+Each trial began with a fixation display containing the fixation cross and two rectangles. The rectangles appeared either to the left and right of fixation or above and below fixation. The four ends of the two rectangles (i.e., the possible target-square locations) occupied precisely the same locations in these two conditions. After this fixation display had been presented for 1,000ms, the cue was superimposed on it for 100ms. The cue was a brightening (i.e., change from black to white) at one of the four ends of the two rectangles. After 100ms, the cued end returned to its original black color, and the fixation display was presented for another 150-250ms. The target black square (or nothing on catch trials) was then superimposed on the fixation display at one of the four ends of the two rectangles. Thus, target presentation took the form of a square “filling in” at one end of a rectangle. The target remained visible until the subject responded by pre ssing the space bar or for 2,000ms, if there was no response. This terminated the trial, and the next trial began after a 500ms inter-trial interval during which the screen was blank. The subject’s task was to press the space bar as fast as possible (yielding a simple reaction time (RT)) whenever a target was detected at any of the four rectangle ends and to withhold responses on the occasional catch trials.
+ 
+### Analysis 
+
+We manipulated the following four variables and the only important measure for our analyses was the reaction time.
+
+Manipulated variables:
+
+1 Location of the cue: There are 4 possible locations for the cue (0, 1, 3, 4 clockwise, starting at upper left), all have the same probabilities. 
+
+2 Rotation of the rectangles: The rectangles can be vertical or horizontal, both possibilities have a probability of 50%.
+
+3 Location of the target: There is no target in 25% of the times (catch trial), the target appears at the same location as the cue in 75% of the non-catch trials, the targets appears at the other end of the cued object in 12,5% of the non-catch trials or the target appears at the equidistant end of the uncued object in 12,5% of the non-catch trials.
+
+4 Time between cue and target: The time between the cue and the target is either 150ms, 200ms or 250ms, all have the same probabilities.
+
+Measured variables:
+
+1 Reaction Time (RT): the time between the appearance of the target and the subject pressing the space bar.
+
+### Data preparation
+
+```{r include=FALSE}
+library(tidyverse)
+
+# read the data
+d = readr::read_csv("results_final_anon.csv") %>% 
+  # only look at main trials
+  filter(block != "practice") %>%
+  # kick out all participants with less than 85% correct in the main trials
+  group_by(submission_id) %>% mutate(correctnessScore = mean(ifelse(correct == 'true', 1, 0))) %>%
+  filter(correctnessScore > 0.85) %>% ungroup() %>%
+  # only look at correct trials (correct==true) and kick out catch trials (target!=false)
+  filter(correct == "true" & target != "false") %>%
+  # change some columns to be in the right format
+  mutate(org = as.integer(org),
+         timeBCT = as.factor(timeBCT),
+         orgPrime = org,
+         target = as.integer(target),
+         targetPrime = target
+         ) %>%
+  # get the main conditions valid_cue vs invalid_cue
+  mutate(conditionCue = factor(
+    case_when( orgPrime == targetPrime ~ "valid_cue",
+               TRUE ~ "invalid_cue"),
+    ordered = T, levels = c("valid_cue", "invalid_cue"))) %>%
+  # get the condition left vs right visual field
+  mutate(conditionField = factor(
+    case_when((targetPrime == 0 | targetPrime == 4) ~ "left_field",
+              TRUE ~ "right_field"),
+    ordered = T, levels = c("left_field", "right_field"))) %>%
+  # get the condition horizontal vs vertical orientation
+  mutate(conditionOrientation = factor(
+    case_when(rotate == "false" ~ "vertical",
+              TRUE ~ "horizontal"),
+    ordered = T, levels = c("horizontal", "vertical")))
+
+# remove outliers
+d_clean = d  %>% group_by(conditionCue, conditionField, conditionOrientation) %>%
+  # kick out fastest 2.5% for all three main conditions (conditionCue, conditionField, conditionOrientation)
+  # and kick out slowest 2.5% for all conditions
+  mutate(outlier = ifelse(log(RT) > quantile(log(RT), probs = 0.975), 1,
+                          ifelse(log(RT) < quantile(log(RT), probs = 0.025), 1, 0))) %>% ungroup() %>%
+  filter(outlier == 0)
+
+# summarize the RTs
+dsummary = d_clean %>% group_by(conditionCue, conditionField, conditionOrientation, timeBCT) %>%
+  summarize(meanRT = mean(RT)) %>%
+  ungroup()
+dsummary
+
+meanCue = d_clean %>% #group_by(conditionCue) %>%
+  summarize(meanRT = mean(RT)) %>%
+  ungroup()
+meanCue
+
+# plot condition valid cue vs invalid cue
+ggplot(d_clean, aes(y = log(RT), x = conditionCue)) + geom_violin()
+ggplot(d_clean, aes(x = log(RT), color = conditionCue)) + geom_density()
+
+ggplot(d_clean, aes(x = happy, color = happy)) + geom_density()
+
+# plot condition left_field vs right_field
+ggplot(d_clean, aes(y = log(RT), x = conditionField)) + geom_violin()
+ggplot(d_clean, aes(x = log(RT), color = conditionField)) + geom_density()
+
+# plot condition horizontal vs vertical orientation
+ggplot(d_clean, aes(y = log(RT), x = conditionOrientation)) + geom_violin()
+ggplot(d_clean, aes(x = log(RT), color = conditionOrientation)) + geom_density()
+
+# plot condition timeBCT
+ggplot(d_clean, aes(y = log(RT), x = timeBCT)) + geom_violin()
+ggplot(d_clean, aes(x = log(RT), color = timeBCT)) + geom_density()
+
+# do a linear model to predict log RT
+# valid_cue vs invalid_cue, left vs right and horizontal vs vertical and timeBCT
+modLM = lm(log(RT) ~ conditionCue + conditionField + conditionOrientation + timeBCT, data = d_clean)
+summary(modLM)
+
+# check if all combinations of conditions are normal distributed
+qqnorm(modLM$residuals)
+qqline(modLM$residuals)
+
+######################SECOND ANALYSIS ONLY INVALID CUES###########################
+
+# second analysis only for the invalid cues
+d_invalid = d %>%
+  # kick out all valid_cues
+  filter(conditionCue == "invalid_cue") %>%
+  # divide invalid_cue in between_object (cued) and within_object (uncued)
+  mutate(conditionRectangle = factor(
+    case_when((rotate == "false" & abs(orgPrime - targetPrime) > 1)
+              | (rotate == "true" & abs(orgPrime - targetPrime) == 1) ~ "within_object",
+              TRUE ~ "between_object"),
+    ordered = T, levels = c("within_object", "between_object"))) %>%
+  # divide invalid_cue in between_field (horizontal) and within_field (vertical)
+  mutate(conditionShift = factor(
+    case_when((rotate == "false" & conditionRectangle == "within_object")
+              | (rotate == "true" & conditionRectangle == "between_object") ~ "vertical_shift",
+              TRUE ~ "horizontal_shift"),
+    ordered = T, levels = c("vertical_shift", "horizontal_shift")))
+
+# remove outliers
+d_invalid_clean = d_invalid %>% group_by(conditionField, conditionRectangle, conditionShift) %>%
+  # kick out fastest 2.5% for all three main conditions (conditionField, conditionRectangle, conditionShift)
+  # and kick out slowest 2.5% for all conditions
+  mutate(outlier = ifelse(log(RT) > quantile(log(RT), probs = 0.975), 1,
+                          ifelse(log(RT) < quantile(log(RT), probs = 0.025), 1, 0))) %>% ungroup() %>%
+  filter(outlier == 0)
+
+# summarize the RTs
+d_invalid_summary = d_invalid_clean %>% group_by(conditionRectangle, conditionField, conditionShift) %>%
+  summarize(meanRT = mean(RT)) %>%
+  ungroup()
+d_invalid_summary
+
+# plot condition between_object vs within_object
+ggplot(d_invalid_clean, aes(y = log(RT), x = conditionRectangle)) + geom_violin()
+ggplot(d_invalid_clean, aes(x = log(RT), color = conditionRectangle)) + geom_density()
+
+# plot condition left_field vs right_field
+ggplot(d_invalid_clean, aes(y = log(RT), x = conditionField)) + geom_violin()
+ggplot(d_invalid_clean, aes(x = log(RT), color = conditionField)) + geom_density()
+
+# plot condition horizontal vs vertical shift
+ggplot(d_invalid_clean, aes(y = log(RT), x = conditionShift)) + geom_violin()
+ggplot(d_invalid_clean, aes(x = log(RT), color = conditionShift)) + geom_density()
+
+# do a linear model to predict log RT
+# between_object vs within_object, left_field vs right_field and horizontal_shift vs vertical_shift
+modInvalidLM = lm(log(RT) ~ conditionRectangle + conditionField + conditionShift, data = d_invalid_clean)
+summary(modInvalidLM)
+
+# check if all combinations of conditions are normal distributed
+qqnorm(modInvalidLM$residuals)
+qqline(modInvalidLM$residuals)
+
+######
+
+# Additional exploratory stuff
+# add analysis of blocks
+# questions at start etc.
+# maybe do a hierachial model
+# library(lme4)
+# modInvalidLMER = lmer(log(RT) ~ conditionRectangle + conditionField + conditionShift + (1 | submission_id), data = d_invalid)
+# summary(modInvalidLMER)
+# add further plots and analyses
+```
+
+**Variable transformation**
+
+First, we prepared the conditions for the first analysis. We used:  
+**conditionCue** (whether the cue and the target appeared at the same location)  
+**conditionField** (whether the target appeared in the right or left field of vision)  
+**conditionOrientation** (whether the rectangles were vertical or horizontal)  
+**timeBCT** (whether the time between the cue and the target was 150, 200 or 250ms)   
+
+```{r}
+# get the main conditions valid_cue vs invalid_cue
+d = d %>% mutate(conditionCue = factor(
+  case_when( orgPrime == targetPrime ~ "valid_cue",
+             TRUE ~ "invalid_cue"),
+  ordered = T, levels = c("valid_cue", "invalid_cue"))) %>%
+  # get the condition left vs right visual field
+  mutate(conditionField = factor(
+    case_when((targetPrime == 0 | targetPrime == 4) ~ "left_field",
+              TRUE ~ "right_field"),
+    ordered = T, levels = c("left_field", "right_field"))) %>%
+  # get the condition horizontal vs vertical orientation
+  mutate(conditionOrientation = factor(
+    case_when(rotate == "false" ~ "vertical",
+              TRUE ~ "horizontal"),
+    ordered = T, levels = c("horizontal", "vertical"))) %>%
+  # get the condition timeBCT
+  mutate(timeBCT = as.factor(timeBCT))
+```
+
+Then, we prepared the conditions for our second analysis. Here we only looked at the trials with *invalid_cue* as conditionCue. 
+We used:  
+**conditionRectangle** (whether the target appeared on the same rectangle as the cue or on the other rectangle)     
+**conditionField** (from above)  
+**conditionShift** (whether the target appeared on the same x coordinate or the same y coordinate as the cue)
+
+```{r}
+d_invalid = d %>%
+  # kick out all valid_cues
+  filter(conditionCue == "invalid_cue") %>%
+  # divide invalid_cue in between_object (cued) and within_object (uncued)
+  mutate(conditionRectangle = factor(
+    case_when((rotate == "false" & abs(orgPrime - targetPrime) > 1)
+              | (rotate == "true" & abs(orgPrime - targetPrime) == 1) ~ "within_object",
+              TRUE ~ "between_object"),
+    ordered = T, levels = c("within_object", "between_object"))) %>%
+  # divide invalid_cue in between_field (horizontal) and within_field (vertical)
+  mutate(conditionShift = factor(
+    case_when((rotate == "false" & conditionRectangle == "within_object")
+              | (rotate == "true" & conditionRectangle == "between_object") ~ "vertical_shift",
+              TRUE ~ "horizontal_shift"),
+    ordered = T, levels = c("vertical_shift", "horizontal_shift")))
+```
+
+**Data Cleaning**
+
+We only looked at the main trials. First, we removed all participants who had less than 85% correct. None of our 52 participants was removed, the worst correctnessScore was **`r min(d$correctnessScore)`**.
+
+```{r}
+# kick out all participants with less than 85% correct in the main trials
+d = d %>% group_by(submission_id) %>% mutate(correctnessScore = mean(ifelse(correct == 'true', 1, 0))) %>%
+filter(correctnessScore > 0.85) %>% ungroup() 
+```
+To remove anticipation errors and slow responses due to distraction or similar and other outliers, we removed the fastest and slowest 2,5% of trials for every combination of conditions used in our analyses.
+
+```{r}
+# remove outliers first analysis
+d_clean = d  %>% group_by(conditionCue, conditionField, conditionOrientation) %>%
+  # kick out fastest 2.5% for all three main conditions (conditionCue, conditionField, conditionOrientation)
+  # and kick out slowest 2.5% for all conditions
+  mutate(outlier = ifelse(log(RT) > quantile(log(RT), probs = 0.975), 1,
+                          ifelse(log(RT) < quantile(log(RT), probs = 0.025), 1, 0))) %>% ungroup() %>%
+  filter(outlier == 0)
+```
+```{r}
+# remove outliers second analysis
+d_invalid_clean = d_invalid %>% group_by(conditionField, conditionRectangle, conditionShift) %>%
+  # kick out fastest 2.5% for all three main conditions (conditionField, conditionRectangle, conditionShift)
+  # and kick out slowest 2.5% for all conditions
+  mutate(outlier = ifelse(log(RT) > quantile(log(RT), probs = 0.975), 1,
+                          ifelse(log(RT) < quantile(log(RT), probs = 0.025), 1, 0))) %>% ungroup() %>%
+  filter(outlier == 0)
+```
+
+### Results
+
+**Plots**
+
+First, we plotted the distributions of the logRT against the possible values of our conditions as violin and density plots. Here, we only show a selection of these plots.
+
+```{r}
+# plot condition valid cue vs invalid cue
+ggplot(d_clean, aes(x = log(RT), color = conditionCue)) + geom_density()
+```
+```{r}
+# plot condition between_object vs within_object
+ggplot(d_invalid_clean, aes(y = log(RT), x = conditionRectangle)) + geom_violin()
+```
+
+In the end, we also plotted the residuals of our analyses to confirm that our data is approximately normal distributed.
+
+```{r}
+# first analysis
+# check if all combinations of conditions are normal distributed
+qqnorm(modLM$residuals)
+qqline(modLM$residuals)
+```
+```{r}
+# second analysis
+# check if all combinations of conditions are normal distributed
+qqnorm(modInvalidLM$residuals)
+qqline(modInvalidLM$residuals)
+```
+
+**Summary Statistics**
+
+First, we looked at the overall mean reaction time **`r summarize(d_clean, meanRT = mean(RT))`ms**. Afterwards, we looked at the mean reaction times grouped by the different values of our conditions.
+
+```{r}
+# first analysis
+dsummary = d_clean %>% group_by(conditionCue, conditionField, conditionOrientation, timeBCT) %>%
+  summarize(meanRT = mean(RT)) %>%
+  ungroup()
+dsummary
+```
+```{r}
+# second analysis
+d_invalid_summary = d_invalid_clean %>% group_by(conditionRectangle, conditionField, conditionShift) %>%
+  summarize(meanRT = mean(RT)) %>%
+  ungroup()
+d_invalid_summary
+```
+
+**Analyses**
+
+As stated in our preregistration report, we treat p-values below 0.05 as significant. 
+First, we analyzed the general effect of cuing and tested some potential confounds. With a p-value of 2e-16 **conditionCue** is significant and shows that the general spatial cuing has an effect. The mean reaction time value for the valid trials is **`r summarize(filter(d_clean,conditionCue=="valid_cue"),meanRT = mean(RT))`ms** and for the invalid trials **`r summarize(filter(d_clean,conditionCue=="invalid_cue"),meanRT = mean(RT))`ms**. As expected, the valid trials are significantly faster. We also got significant values for **conditionField** and **timeBCT**.
+
+
+```{r}
+# do a linear model to predict log RT
+# valid_cue vs invalid_cue, left vs right and horizontal vs vertical and timeBCT
+modLM = lm(log(RT) ~ conditionCue + conditionField + conditionOrientation + timeBCT, data = d_clean)
+summary(modLM)
+```
+
+Then, we analyzed the second research question and again tested some potential confounds. Here, none of our tested conditions is significant. 
+
+```{r}
+# do a linear model to predict log RT
+# between_object vs within_object, left_field vs right_field and horizontal_shift vs vertical_shift
+modInvalidLM = lm(log(RT) ~ conditionRectangle + conditionField + conditionShift, data = d_invalid_clean)
+summary(modInvalidLM)
+```
+
+
+### Discussion 
+
+*To have a closer look at this experiment, the code for the experiment, the anonymized data, this report (including the complete analysis script) can be found at GitHub.*[^3]
+
+In general, we can say that we reproduced the first effect of the original experiment and did not reproduce the second effect. 
+
+Possible reasons for the other significant results of the first research question:
+
+- A higher time between the cue and the target resulted in a faster reaction time, we suppose that the participants anticipated that the target will appear after approximately 200ms and were slower when the target appeared before that time and even faster if the target appeared later, because they were ready. (In the original experiment they always used 200ms as the time between cue and target)
+- Maybe some of the participants did not look straight into the screen, but rather from an angular direction, this could potentially explain the significance of the conditionField. 
+
+Possible reasons for the insignificant results of the second research question:
+
+- In the original experiment they fixed the distance between the screen and the participant and they measured how much of the visual field is filled by the display. We have chosen a fixed size of 400x400 pixel for the display and the exact size of the display and the distance to the screen has probably differed a lot between our participants. 
+- Two of our participants mentioned in the comments that the fixation cross sometimes changed its color from grey to black. We looked into this issue and found out that we indeed always draw the exact same cross, but depending on your screen and browser there can be some drastic anti-aliasing bugs, which can change the perceived color of the cross and the lines. 
+- To fix these issues you could do the experiment in a controlled environment, so that everybody uses the same screen and has the same distance from the screen.
+- There is no official JavaScript solution against anti-aliasing, but we found out that there apparently is a working workaround. [^4]
+
+### References
+[^1]: Egly, Robert, Jon Driver, and Robert D Rafal. 1994. “Shifting Visual Attention Between Objects and Locations: Evidence from Normal and Parietal Lesion Subjects.” *Journal of Experimental Psychology: General* 123 (2). American Psychological Association: 161–77. http://www.psych.utoronto.ca/users/ferber/teaching/visualattention/readings/Oct13/1994_Egly_etal_JEPG.pdf.
+[^2]: https://babe-project.github.io/babe_site/index.html.
+[^3]: https://github.com/JannisBush/Object-biases-in-visual-attention.
+[^4]: “How to Get Crisp Lines on Your Canvas with No Antialias.” https://www.rgraph.net/canvas/docs/howto-get-crisp-lines-with-no-antialias.html.
